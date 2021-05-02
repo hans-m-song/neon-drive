@@ -1,0 +1,10 @@
+{
+    "python.formatting.provider": "black",
+    "python.pipenvPath": "pipenv",
+    "[python]": {
+        "editor.codeActionsOnSave": {
+            "source.fixAll": true,
+            "source.organizeImports": true
+        }
+    }
+}

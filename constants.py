@@ -1,0 +1,8 @@
+import logging
+
+DEBUG = True
+DEBUG_LEVEL = logging.DEBUG
+
+WINDOW_NAME = "NEON DRIVE"
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
