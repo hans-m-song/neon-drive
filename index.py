@@ -1,5 +1,5 @@
 import constants
-from render import render_frame
+from render import draw_ui, init_resources, render_frame, update
 from utils.log import init_logger
 from utils.magic import runProgram
 
@@ -12,6 +12,9 @@ def run():
         constants.WINDOW_WIDTH,
         constants.WINDOW_HEIGHT,
         render_frame,
+        init_resources,
+        draw_ui,
+        update,
     )
 
 

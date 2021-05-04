@@ -12,7 +12,6 @@ pyopengl = "*"
 pyopengl-accelerate = "*"
 
 [dev-packages]
-pylama = "*"
 black = "*"
 isort = "*"
 flake8 = "*"

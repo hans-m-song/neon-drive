@@ -5,8 +5,8 @@ import warnings
 
 import glfw
 import imgui
+import OpenGL.GL as gl
 from imgui.integrations.glfw import GlfwRenderer as ImGuiGlfwRenderer
-from OpenGL.GL import *
 
 import constants
 
@@ -29,7 +29,7 @@ def initGlFwAndResources(title, startWidth, startHeight, initResources):
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
     glfw.window_hint(glfw.SRGB_CAPABLE, 1)
-    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
+    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, gl.GL_TRUE)
 
     # glfw.window_hint(glfw.SAMPLES, g_currentMsaaSamples)
 
@@ -41,32 +41,33 @@ def initGlFwAndResources(title, startWidth, startHeight, initResources):
     glfw.make_context_current(window)
 
     print(
-        "--------------------------------------\nOpenGL\n  Vendor: %s\n  Renderer: %s\n  Version: %s\n--------------------------------------\n"
-        % (
-            glGetString(GL_VENDOR).decode("utf8"),
-            glGetString(GL_RENDERER).decode("utf8"),
-            glGetString(GL_VERSION).decode("utf8"),
-        ),
+        "--------------------------------------\nOpenGL\n  "
+        + "Vendor: {}\n  Renderer: {}\n  Version: {}".format(
+            gl.glGetString(gl.GL_VENDOR).decode("utf8"),
+            gl.glGetString(gl.GL_RENDERER).decode("utf8"),
+            gl.glGetString(gl.GL_VERSION).decode("utf8"),
+        )
+        + "\n--------------------------------------\n",
         flush=True,
     )
 
     impl = ImGuiGlfwRenderer(window)
 
-    # glDebugMessageCallback(GLDEBUGPROC(debugMessageCallback), None)
+    # gl.glDebugMessageCallback(gl.GLDEBUGPROC(debugMessageCallback), None)
 
     if constants.DEBUG:
-        # (although this glEnable(GL_DEBUG_OUTPUT) should not have been needed when
-        # using the GLUT_DEBUG flag above...)
-        glEnable(GL_DEBUG_OUTPUT)
+        # (although this gl.glEnable(gl.GL_DEBUG_OUTPUT) should not have been
+        # needed when using the gl.GLUT_DEBUG flag above...)
+        gl.glEnable(gl.GL_DEBUG_OUTPUT)
         # This ensures that the callback is done in the context of the calling
-        # function, which means it will be on the stack in the debugger, which makes it
-        # a lot easier to figure out why it happened.
-        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS)
+        # function, which means it will be on the stack in the debugger, which
+        # makes it a lot easier to figure out why it happened.
+        gl.glEnable(gl.GL_DEBUG_OUTPUT_SYNCHRONOUS)
 
-    glDisable(GL_CULL_FACE)
-    glEnable(GL_DEPTH_TEST)
-    glDepthFunc(GL_LEQUAL)
-    # glEnable(GL_DEPTH_CLAMP)
+    gl.glDisable(gl.GL_CULL_FACE)
+    gl.glEnable(gl.GL_DEPTH_TEST)
+    gl.glDepthFunc(gl.GL_LEQUAL)
+    # gl.glEnable(gl.GL_DEPTH_CLAMP)
 
     if initResources:
         initResources()
@@ -153,7 +154,7 @@ def runProgram(
 
 
 def getUniformLocationDebug(shaderProgram, name):
-    loc = glGetUniformLocation(shaderProgram, name)
+    loc = gl.glGetUniformLocation(shaderProgram, name)
     # Useful point for debugging, replace with silencable logging
     # if loc == -1:
     #    print("Uniforn '%s' was not found"%name)
