@@ -1,21 +1,20 @@
 import constants
-from render import draw_ui, init_resources, render_frame, update
+from entities.Car import Car
+from renderer.Engine import Engine
 from utils.log import init_logger
-from utils.magic import runProgram
 
 
 def run():
     logger = init_logger()
     logger.debug("Starting neon drive...")
-    runProgram(
-        constants.WINDOW_NAME,
-        constants.WINDOW_WIDTH,
-        constants.WINDOW_HEIGHT,
-        render_frame,
-        init_resources,
-        draw_ui,
-        update,
-    )
+
+    engine = Engine()
+
+    if not constants.SKIP_ASSET_LOAD:
+        car = Car()
+        engine.add_resource(car)
+
+    engine.run()
 
 
 if __name__ == "__main__":
