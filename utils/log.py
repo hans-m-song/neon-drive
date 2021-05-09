@@ -12,7 +12,7 @@ def init_logger(name=__name__):
         level=constants.DEBUG_LEVEL,
         format="[%(asctime)s]"
         + "[%(pathname)s:%(lineno)s]"
-        + "[%(levelname)8s] %(message)s",
+        + "[%(levelname)s] %(message)s",
         datefmt="%H:%M:%S",
     )
     return get_logger(name)
