@@ -1,10 +1,12 @@
+# flake8: noqa
+
 import os
 from ctypes import c_float
 
 import OpenGL.GL as gl
 from PIL import Image
 
-from utils.magic import Mat3, Mat4, buildShader, getUniformLocationDebug
+from utils.lab_utils import Mat3, Mat4, buildShader, getUniformLocationDebug
 
 # T_Eof      = 0,
 # T_MtlLib   = 'm' << 8 | 't'
