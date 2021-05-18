@@ -6,12 +6,11 @@ import OpenGL.GL as gl
 from imgui.integrations.glfw import GlfwRenderer
 
 import constants
-from renderer.control import Keyboard, Mouse, Time
+from renderer.control import Keyboard, Mouse, Time, View
 from utils.log import get_logger
 
 logger = get_logger()
 imgui.create_context()
-io = imgui.get_io()
 
 
 def get_info(prop):
@@ -56,9 +55,10 @@ class Engine:
     window = None
     impl = None
 
-    keyboard = None
-    mouse = None
-    time = None
+    keyboard: Keyboard = None
+    mouse: Mouse = None
+    time: Time = None
+    view: View = None
 
     resources = []
 
@@ -75,12 +75,13 @@ class Engine:
         self.keyboard = Keyboard(self.window)
         self.mouse = Mouse(self.window)
         self.time = Time()
+        self.view = View()
 
         self.init_resources()
 
     def add_resource(self, resource):
         self.resources.append(resource)
-        logger.debug(f"added resource: {resource.name or resource}")
+        logger.debug(f"added resource: {resource}")
 
     def run(self):
         while not glfw.window_should_close(self.window):
@@ -91,38 +92,36 @@ class Engine:
     def init_resources(self):
         pass
 
-    def update(self):
+    def update(self, width, height):
         self.keyboard.update()
         self.mouse.update()
         self.time.update()
-
-        io = imgui.get_io()
-        if io.want_capture_mouse:
-            self.mouse.delta = (0, 0)
+        self.view.update(width, height)
 
         for resource in self.resources:
             resource.update(
-                keyboard=self.keyboard, mouse=self.mouse, time=self.time
+                keyboard=self.keyboard,
+                mouse=self.mouse,
+                time=self.time,
             )
 
-    def draw_ui(self, width, height):
-        for resource in self.resources:
-            resource.draw_ui()
-
     def render(self, width, height):
+        gl.glViewport(0, 0, width, height)
+        gl.glClearColor(0.2, 0.3, 0.1, 1.0)
+        gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT)
+
         for resource in self.resources:
-            resource.render()
+            resource.render(view=self.view)
 
     def tick(self):
-        self.update()
-
         width, height = glfw.get_framebuffer_size(self.window)
+
+        self.update(width, height)
 
         imgui.new_frame()
         imgui.set_next_window_position(5.0, 5.0, imgui.FIRST_USE_EVER)
         imgui.begin("UI", 0)
 
-        self.draw_ui(width, height)
         self.render(width, height)
 
         imgui.end()

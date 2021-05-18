@@ -1,4 +1,7 @@
 import glfw
+import imgui
+
+from utils.math import Mat4, make_look_at, make_perspective
 
 MOUSE_MAP = {
     "MOUSE_BUTTON_LEFT": glfw.MOUSE_BUTTON_LEFT,
@@ -155,11 +158,16 @@ class Mouse(WithWindow):
     delta = (0, 0)
 
     def update(self):
+
         old_x, old_y = self.position
         x, y = glfw.get_cursor_pos(self.window)
 
         self.delta = (x - old_x, y - old_y)
         self.position = (x, y)
+
+        io = imgui.get_io()
+        if io.want_capture_mouse:
+            self.mouse.delta = (0, 0)
 
 
 class Time:
@@ -170,3 +178,38 @@ class Time:
         prev_time = self.now
         self.now = glfw.get_time()
         self.delta = self.now - prev_time
+
+
+class View:
+    width = 0
+    height = 0
+    aspect_ratio = 0
+
+    fov = 60.0
+    distance_near = 0.2
+    distance_far = 2000.0
+
+    view_to_clip_transform = Mat4()
+    world_to_view_transform = Mat4()
+
+    view_position = [20.0, 20.0, 20.0]
+    view_target = [0.0, 5.0, 0.0]
+    view_up = [0.0, 1.0, 0.0]
+
+    def update(self, width, height):
+        self.width = width
+        self.height = height
+        self.aspect_ratio = float(width) / float(height)
+
+        self.view_to_clip_transform = make_perspective(
+            self.fov,
+            self.aspect_ratio,
+            self.distance_near,
+            self.distance_far,
+        )
+
+        self.world_to_view_transform = make_look_at(
+            self.view_position,
+            self.view_target,
+            self.view_up,
+        )
