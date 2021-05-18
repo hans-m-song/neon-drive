@@ -1,17 +1,21 @@
 from entities.ObjModel import ObjModel
+from renderer.control import Keyboard, Mouse, Time, View
 
 
 class Entity:
-    name = None
-    filename = None
-    model = None
+    name: str = None
+    filename: str = None
+    model: ObjModel = None
 
-    def __init__(self, name=None, filename=None):
+    def __init__(self, name: str = None, filename: str = None):
         """
         kwargs:
             name: str
             filename: str
         """
+        assert name is not None
+        assert filename is not None
+
         self.name = name
         self.filename = filename
         self._init_resources()
@@ -19,17 +23,32 @@ class Entity:
     def _init_resources(self):
         self.model = ObjModel(self.filename)
 
-    def update(self, keyboard=None, mouse=None, time=None):
+    def update(
+        self,
+        keyboard: Keyboard = None,
+        mouse: Mouse = None,
+        time: Time = None,
+    ):
         """
         kwargs:
             keyboard: Keyboard
             mouse: Mouse
             time: Time
         """
-        pass
+        assert keyboard is not None
+        assert mouse is not None
+        assert time is not None
 
-    def draw_ui(self):
-        pass
+    def draw_ui(self, view: View = None):
+        """
+        kwargs:
+            view: View
+        """
+        assert view is not None
 
-    def render(self):
-        pass
+    def render(self, view: View = None):
+        """
+        kwargs:
+            view: View
+        """
+        assert view is not None

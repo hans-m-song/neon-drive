@@ -6,7 +6,8 @@ from ctypes import c_float
 import OpenGL.GL as gl
 from PIL import Image
 
-from utils.lab_utils import Mat3, Mat4, buildShader, getUniformLocationDebug
+from shader.utils import build_shader
+from utils.math import Mat3, Mat4
 
 # T_Eof      = 0,
 # T_MtlLib   = 'm' << 8 | 't'
@@ -32,7 +33,7 @@ def flatten(*lll):
 
 
 def bindTexture(texUnit, textureId, defaultTexture):
-    gl.glActiveTexture(gl.gl.GL_TEXTURE0 + texUnit)
+    gl.glActiveTexture(gl.GL_TEXTURE0 + texUnit)
     gl.glBindTexture(
         gl.GL_TEXTURE_2D, textureId if textureId != -1 else defaultTexture
     )
@@ -89,7 +90,7 @@ class ObjModel:
         self.overrideDiffuseTextureWithDefault = False
         self.load(fileName)
 
-        self.defaultShader = buildShader(
+        self.defaultShader = build_shader(
             self.defaultVertexShader,
             self.defaultFragmentShader,
             self.getDefaultAttributeBindings(),
@@ -403,7 +404,7 @@ class ObjModel:
         defaultTfms.update(transforms)
         # upload map of transforms
         for tfmName, tfm in defaultTfms.items():
-            loc = getUniformLocationDebug(shaderProgram, tfmName)
+            loc = gl.glGetUniformLocation(shaderProgram, tfmName)
             tfm._set_open_gl_uniform(loc)
 
         previousMaterial = None
@@ -445,20 +446,20 @@ class ObjModel:
                 # TODO: this is very slow, it should be packed into an uniform buffer as per above!
                 for k, v in material["color"].items():
                     gl.glUniform3fv(
-                        getUniformLocationDebug(
+                        gl.glGetUniformLocation(
                             shaderProgram, "material_%s_color" % k
                         ),
                         1,
                         v,
                     )
                 gl.glUniform1f(
-                    getUniformLocationDebug(
+                    gl.glGetUniformLocation(
                         shaderProgram, "material_specular_exponent"
                     ),
                     material["specularExponent"],
                 )
                 gl.glUniform1f(
-                    getUniformLocationDebug(shaderProgram, "material_alpha"),
+                    gl.glGetUniformLocation(shaderProgram, "material_alpha"),
                     material["alpha"],
                 )
 
@@ -490,19 +491,19 @@ class ObjModel:
         assert gl.glGetIntegerv(gl.GL_CURRENT_PROGRAM) == shaderProgram
 
         gl.glUniform1i(
-            getUniformLocationDebug(shaderProgram, "diffuse_texture"),
+            gl.glGetUniformLocation(shaderProgram, "diffuse_texture"),
             self.TU_Diffuse,
         )
         gl.glUniform1i(
-            getUniformLocationDebug(shaderProgram, "opacity_texture"),
+            gl.glGetUniformLocation(shaderProgram, "opacity_texture"),
             self.TU_Opacity,
         )
         gl.glUniform1i(
-            getUniformLocationDebug(shaderProgram, "specular_texture"),
+            gl.glGetUniformLocation(shaderProgram, "specular_texture"),
             self.TU_Specular,
         )
         gl.glUniform1i(
-            getUniformLocationDebug(shaderProgram, "normal_texture"),
+            gl.glGetUniformLocation(shaderProgram, "normal_texture"),
             self.TU_Normal,
         )
         # gl.glUniformBlockBinding(shaderProgram, gl.glGetUniformBlockIndex(shaderProgram, "MaterialProperties"), UBS_MaterialProperties);
