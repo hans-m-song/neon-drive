@@ -1,5 +1,6 @@
 import constants
 from entities.Car import Car
+from entities.Ground import Ground
 from renderer.Engine import Engine
 from utils.log import init_logger
 
@@ -11,7 +12,10 @@ def run():
     engine = Engine()
 
     if not constants.SKIP_ASSET_LOAD:
-        car = Car()
+        ground = Ground()
+        car = Car(ground=ground)
+
+        engine.add_resource(ground)
         engine.add_resource(car)
 
     engine.run()
