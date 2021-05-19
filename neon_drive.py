@@ -13,7 +13,7 @@ def run():
 
     if not constants.SKIP_ASSET_LOAD:
         ground = Ground()
-        car = Car(ground=ground)
+        car = Car()
 
         engine.add_resource(ground)
         engine.add_resource(car)

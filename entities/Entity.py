@@ -1,5 +1,6 @@
 from entities.ObjModel import ObjModel
-from renderer.control import Keyboard, Mouse, Time, View
+from renderer.control import Keyboard, Mouse, Time
+from renderer.View import View
 
 
 class Entity:

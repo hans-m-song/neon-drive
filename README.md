@@ -4,6 +4,11 @@
 
 `pipenv install && pipenv run python neon-drive.py`
 
+## Controls
+
+- wasd: move car on road
+- mouse: orbit camera around car
+
 ## Essential
 
 - lighting

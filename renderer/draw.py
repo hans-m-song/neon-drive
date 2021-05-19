@@ -1,7 +1,7 @@
 import OpenGL.GL as gl
 
 from entities.Entity import Entity
-from renderer.control import View
+from renderer.View import View
 from utils.math import Mat3, Mat4, inverse, transpose
 
 
