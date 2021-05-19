@@ -1,17 +1,17 @@
 import sys
 
 import glfw
-import imgui
+
 import OpenGL.GL as gl
-from imgui.integrations.glfw import GlfwRenderer
 
 import constants
 from renderer.control import Keyboard, Mouse, Time
 from renderer.View import View
 from utils.log import get_logger
+from time import sleep
+
 
 logger = get_logger()
-imgui.create_context()
 
 
 def get_info(prop):
@@ -42,23 +42,22 @@ def init_window():
     if constants.CAPTURE_MOUSE:
         glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
-    impl = GlfwRenderer(window)
-
     gl.glDisable(gl.GL_CULL_FACE)
     gl.glEnable(gl.GL_DEPTH_TEST)
     gl.glDepthFunc(gl.GL_LEQUAL)
 
-    return window, impl
+    return window
 
 
 class Engine:
     window = None
-    impl = None
 
+    time: Time = None
     keyboard: Keyboard = None
     mouse: Mouse = None
-    time: Time = None
     view: View = None
+
+    s_per_frame = 1.0 / constants.TARGET_FPS
 
     resources = []
 
@@ -66,7 +65,7 @@ class Engine:
         if not glfw.init():
             sys.exit(1)
 
-        self.window, self.impl = init_window()
+        self.window = init_window()
 
         logger.info(f"vendor:   {get_info(gl.GL_VENDOR)}")
         logger.info(f"renderer: {get_info(gl.GL_RENDERER)}")
@@ -93,9 +92,9 @@ class Engine:
         pass
 
     def update(self, width, height):
+        self.time.update()
         self.keyboard.update()
         self.mouse.update()
-        self.time.update()
         self.view.update(width, height)
 
         for resource in self.resources:
@@ -117,18 +116,15 @@ class Engine:
         width, height = glfw.get_framebuffer_size(self.window)
 
         self.update(width, height)
-
-        imgui.new_frame()
-        imgui.set_next_window_position(5.0, 5.0, imgui.FIRST_USE_EVER)
-        imgui.begin("UI", 0)
-
         self.render(width, height)
 
-        imgui.end()
-        imgui.render()
         glfw.swap_buffers(self.window)
         glfw.poll_events()
-        self.impl.process_inputs()
+
+        # ensure movement speed scaling is right
+        leftover = self.s_per_frame - self.time.delta
+        if leftover > 0:
+            sleep(leftover)
 
     def _cleanup(self):
         glfw.terminate()
