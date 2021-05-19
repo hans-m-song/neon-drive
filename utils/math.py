@@ -211,3 +211,11 @@ def make_perspective(yFovDeg, aspect, n, f):
     zw = -(2.0 * f * n) / (f - n)
 
     return Mat4([[sx, 0, 0, 0], [0, sy, 0, 0], [0, 0, zz, zw], [0, 0, -1, 0]])
+
+
+def clamp(
+    value: float,
+    limit_max: float = 0.0,
+    limit_min: float = 0.0,
+) -> float:
+    return max(min(value, limit_max), limit_min)

@@ -4,9 +4,9 @@ from renderer.View import View
 
 
 class Entity:
-    name: str = None
-    filename: str = None
-    model: ObjModel = None
+    name: str
+    filename: str
+    model: ObjModel
 
     def __init__(self, name: str = None, filename: str = None):
         """

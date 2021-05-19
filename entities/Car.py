@@ -1,20 +1,22 @@
 import math
-from renderer.View import View
 from typing import Tuple
+
+import constants
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
+from renderer.View import View
 from utils.math import make_rotation_y, make_translation
-
-import constants
-
-MAX = 10
-MIN = -10
 
 
 class Car(Entity):
+    max = 10
+    min = -10
+
     position: Tuple[float, float, float] = (0.0, 1.5, 0.0)
     rotation = make_rotation_y(math.radians(180))
+
+    speed = 0.1
 
     def __init__(self):
         super().__init__(
@@ -33,23 +35,20 @@ class Car(Entity):
         # y is z in context of view
         x, z, y = self.position
 
-        # update x
         if keyboard.state["A"]:
-            x = min(x + 1, MAX)
+            x = min(x + self.speed, self.max)
             if constants.DEBUG:
                 print(f"Car left {x}")
         elif keyboard.state["D"]:
-            x = max(x - 1, MIN)
+            x = max(x - self.speed, self.min)
             if constants.DEBUG:
                 print(f"Car right {x}")
-
-        # update y
-        if keyboard.state["W"]:
-            y = min(y + 1, MAX)
+        elif keyboard.state["W"]:
+            y = min(y + self.speed, self.max)
             if constants.DEBUG:
                 print(f"Car up {y}")
         elif keyboard.state["S"]:
-            y = max(y - 1, MIN)
+            y = max(y - self.speed, self.min)
             if constants.DEBUG:
                 print(f"Car down {y}")
 

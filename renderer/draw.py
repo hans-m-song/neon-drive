@@ -1,12 +1,12 @@
 import OpenGL.GL as gl
 
-from entities.Entity import Entity
+from entities.ObjModel import ObjModel
 from renderer.View import View
 from utils.math import Mat3, Mat4, inverse, transpose
 
 
 def draw_obj(
-    model: Entity = None,
+    model: ObjModel = None,
     view: View = None,
     model_to_world: Mat4 = None,
 ):

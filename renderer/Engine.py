@@ -1,15 +1,14 @@
 import sys
+from time import sleep
+from typing import Any
 
 import glfw
-
 import OpenGL.GL as gl
 
 import constants
 from renderer.control import Keyboard, Mouse, Time
 from renderer.View import View
 from utils.log import get_logger
-from time import sleep
-
 
 logger = get_logger()
 
@@ -50,12 +49,12 @@ def init_window():
 
 
 class Engine:
-    window = None
+    window: Any
 
-    time: Time = None
-    keyboard: Keyboard = None
-    mouse: Mouse = None
-    view: View = None
+    time: Time
+    keyboard: Keyboard
+    mouse: Mouse
+    view: View
 
     s_per_frame = 1.0 / constants.TARGET_FPS
 
