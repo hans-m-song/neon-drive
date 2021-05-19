@@ -163,10 +163,6 @@ class Mouse(WithWindow):
         self.delta = (x - old_x, y - old_y)
         self.position = (x, y)
 
-        io = imgui.get_io()
-        if io.want_capture_mouse:
-            self.delta = (0, 0)
-
 
 class Time:
     now = glfw.get_time()

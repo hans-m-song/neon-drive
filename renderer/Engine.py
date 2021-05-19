@@ -38,6 +38,7 @@ def init_window():
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
     impl = GlfwRenderer(window)
 
