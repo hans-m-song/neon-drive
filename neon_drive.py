@@ -7,7 +7,7 @@ from utils.log import init_logger
 
 def run():
     logger = init_logger()
-    logger.debug("Starting neon drive...")
+    logger.info("Starting neon drive...")
 
     engine = Engine()
 

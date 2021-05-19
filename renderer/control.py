@@ -1,5 +1,6 @@
+from utils.log import get_logger
 import glfw
-import imgui
+import constants
 
 MOUSE_MAP = {
     "MOUSE_BUTTON_LEFT": glfw.MOUSE_BUTTON_LEFT,
@@ -162,6 +163,11 @@ class Mouse(WithWindow):
 
         self.delta = (x - old_x, y - old_y)
         self.position = (x, y)
+
+        if constants.DEBUG and (self.delta[0] != 0 or self.delta[1] != 0):
+            get_logger().debug(
+                f"position: {str(self.position)}, delta: {str(self.delta)}",
+            )
 
 
 class Time:

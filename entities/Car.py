@@ -1,9 +1,11 @@
 import math
+from renderer.View import View
+from typing import Tuple
 from entities.Entity import Entity
-from entities.Ground import Ground
-from renderer.control import KEY_MAP, Keyboard, Mouse, Time
+from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
-from utils.math import make_rotation_y, make_translation, vec3
+from utils.math import make_rotation_y, make_translation
+
 import constants
 
 MAX = 10
@@ -11,7 +13,8 @@ MIN = -10
 
 
 class Car(Entity):
-    position = vec3(0.0, 1.5, 0.0)
+    position: Tuple[float, float, float] = (0.0, 1.5, 0.0)
+    rotation = make_rotation_y(math.radians(180))
 
     def __init__(self):
         super().__init__(
@@ -52,12 +55,11 @@ class Car(Entity):
 
         self.position = (x, z, y)
 
-    def render(self, view=None):
+    def render(self, view: View = None):
         super().render(view=view)
 
         draw_obj(
             model=self.model,
             view=view,
-            model_to_world=make_rotation_y(math.radians(180))
-            * make_translation(*self.position),
+            model_to_world=self.rotation * make_translation(*self.position),
         )

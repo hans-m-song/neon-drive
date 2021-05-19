@@ -38,7 +38,9 @@ def init_window():
         sys.exit(1)
 
     glfw.make_context_current(window)
-    glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
+
+    if constants.CAPTURE_MOUSE:
+        glfw.set_input_mode(window, glfw.CURSOR, glfw.CURSOR_DISABLED)
 
     impl = GlfwRenderer(window)
 
@@ -66,9 +68,9 @@ class Engine:
 
         self.window, self.impl = init_window()
 
-        logger.debug(f"vendor:   {get_info(gl.GL_VENDOR)}")
-        logger.debug(f"renderer: {get_info(gl.GL_RENDERER)}")
-        logger.debug(f"version:  {get_info(gl.GL_VERSION)}")
+        logger.info(f"vendor:   {get_info(gl.GL_VENDOR)}")
+        logger.info(f"renderer: {get_info(gl.GL_RENDERER)}")
+        logger.info(f"version:  {get_info(gl.GL_VERSION)}")
 
         self.keyboard = Keyboard(self.window)
         self.mouse = Mouse(self.window)

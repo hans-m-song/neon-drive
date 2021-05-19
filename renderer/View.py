@@ -1,7 +1,10 @@
 from renderer.control import Mouse
 from utils.math import Mat4, make_look_at, make_perspective
 
-DEFAULT_VIEW_POSITION = [0.0, 10.0, 20.0]
+# x - rotation
+# y - tilt
+# z - distance to model
+DEFAULT_VIEW_POSITION = [10.0, 10.0, 20.0]
 
 
 class View:
@@ -23,6 +26,12 @@ class View:
     mouse: Mouse = None
 
     def __init__(self, mouse: Mouse = None):
+        """
+        kwargs:
+            mouse: Mouse
+        """
+        assert mouse is not None
+
         self.mouse = mouse
 
     def update(self, width, height):
@@ -36,11 +45,6 @@ class View:
             self.distance_near,
             self.distance_far,
         )
-
-        x, y = self.mouse.delta
-        if x != 0 and y != 0:
-            print(f"mouse moved ({x}, {y})")
-            # todo orbit view position based on mouse movement
 
         self.world_to_view_transform = make_look_at(
             self.view_position,
