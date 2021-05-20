@@ -6,15 +6,15 @@ from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
 from renderer.View import View
-from utils.math import make_rotation_y, make_translation
+from utils.math import Mat4, make_translation, vec3
 
 
 class Car(Entity):
     max = 10
     min = -10
 
-    position: Tuple[float, float, float] = (0.0, 1.5, 0.0)
-    rotation = make_rotation_y(math.radians(180))
+    rotation = Mat4()
+    position = vec3(0, 1.5, 0)
 
     speed = 0.1
 
