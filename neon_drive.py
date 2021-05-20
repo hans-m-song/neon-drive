@@ -16,7 +16,7 @@ def run():
         car = Car()
 
         engine.add_resource(ground)
-        engine.add_resource(car)
+        engine.add_resource(car, view_target=True)
 
     engine.run()
 

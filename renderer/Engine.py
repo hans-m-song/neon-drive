@@ -6,6 +6,7 @@ import glfw
 import OpenGL.GL as gl
 
 import constants
+from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.View import View
 from utils.log import get_logger
@@ -58,6 +59,8 @@ class Engine:
 
     s_per_frame = 1.0 / constants.TARGET_FPS
 
+    view_target: Entity = None
+
     resources = []
 
     def __init__(self):
@@ -77,9 +80,17 @@ class Engine:
 
         self.init_resources()
 
-    def add_resource(self, resource):
+    def add_resource(self, resource: Entity, view_target: bool = False):
         self.resources.append(resource)
-        logger.debug(f"added resource: {resource}")
+
+        if view_target:
+            self.view_target = resource
+
+        logger.debug(
+            "added resource: {}{}".format(
+                resource, " (view target)" if view_target else ""
+            ),
+        )
 
     def run(self):
         while not glfw.window_should_close(self.window):
@@ -94,7 +105,7 @@ class Engine:
         self.time.update()
         self.keyboard.update()
         self.mouse.update()
-        self.view.update(width, height)
+        self.view.update(width, height, view_target=self.view_target)
 
         for resource in self.resources:
             resource.update(

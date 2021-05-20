@@ -7,6 +7,7 @@ class Entity:
     name: str
     filename: str
     model: ObjModel
+    position = [0.0, 0.0, 0.0]
 
     def __init__(self, name: str = None, filename: str = None):
         """

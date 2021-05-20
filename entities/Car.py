@@ -14,7 +14,7 @@ class Car(Entity):
     min = -10
 
     rotation = Mat4()
-    position = vec3(0, 1.5, 0)
+    position = [0, 1.5, 0]
 
     speed = 0.1
 
@@ -35,22 +35,17 @@ class Car(Entity):
         # y is z in context of view
         x, z, y = self.position
 
+        # horizontal movement
         if keyboard.state["A"]:
             x = min(x + self.speed, self.max)
-            if constants.DEBUG:
-                print(f"Car left {x}")
         elif keyboard.state["D"]:
             x = max(x - self.speed, self.min)
-            if constants.DEBUG:
-                print(f"Car right {x}")
-        elif keyboard.state["W"]:
+
+        # vertical movement
+        if keyboard.state["W"]:
             y = min(y + self.speed, self.max)
-            if constants.DEBUG:
-                print(f"Car up {y}")
         elif keyboard.state["S"]:
             y = max(y - self.speed, self.min)
-            if constants.DEBUG:
-                print(f"Car down {y}")
 
         self.position = (x, z, y)
 
