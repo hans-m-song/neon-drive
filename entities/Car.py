@@ -1,12 +1,8 @@
-import math
-from typing import Tuple
-
-import constants
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
 from renderer.View import View
-from utils.math import Mat4, clamp, make_translation, vec3
+from utils.math import clamp, make_translation
 
 
 class Car(Entity):
