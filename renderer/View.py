@@ -72,7 +72,7 @@ class View:
 
         self.angle_yaw -= delta_x * self.mouse_move_scale
         self.angle_pitch = clamp(
-            self.angle_pitch - delta_y * self.mouse_move_scale,
+            self.angle_pitch + delta_y * self.mouse_move_scale,
             limit_min=1,
             limit_max=89,
         )
