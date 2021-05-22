@@ -25,7 +25,6 @@ class View:
     view_to_clip_transform = Mat4()
     world_to_view_transform = Mat4()
 
-    view_position = [15.0, 15.0, 15.0]
     view_target = [0.0, 0.0, 0.0]
     view_up = [0.0, 1.0, 0.0]
 
@@ -37,7 +36,6 @@ class View:
     first_tick = True
 
     mouse_move_scale = 0.05
-    speed = 0.1
 
     max = 10
     min = -10
@@ -67,8 +65,6 @@ class View:
         if self.first_tick:
             delta_x, delta_y = (0, 0)
             self.first_tick = False
-
-        # TODO handle case when directly above
 
         self.angle_yaw -= delta_x * self.mouse_move_scale
         self.angle_pitch = clamp(
