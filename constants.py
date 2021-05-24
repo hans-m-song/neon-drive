@@ -38,3 +38,5 @@ SKIP_ASSET_LOAD = get_env_bool("SKIP_ASSET_LOAD", "false")
 CAPTURE_MOUSE = False  # get_env_bool("CAPTURE_MOUSE")
 
 TARGET_FPS = 120
+
+WIREFRAME = False

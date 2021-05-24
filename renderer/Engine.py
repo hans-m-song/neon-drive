@@ -119,6 +119,10 @@ class Engine:
         gl.glClearColor(0.2, 0.3, 0.1, 1.0)
         gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT)
 
+        if constants.WIREFRAME:
+            gl.glPolygonMode(gl.GL_FRONT_AND_BACK, gl.GL_LINE)
+            gl.glLineWidth(1.0)
+
         for resource in self.resources:
             resource.render(view=self.view)
 
