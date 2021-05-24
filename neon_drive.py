@@ -15,7 +15,7 @@ def run():
     if not constants.SKIP_ASSET_LOAD:
         car = Car()
         ground = Ground()
-        treadmill_parts = [Treadmill(car=car, position=i) for i in range(5)]
+        treadmill_parts = [Treadmill(car=car, position=i) for i in range(10)]
 
         engine.add_resource(car, view_target=True)
         engine.add_resource(ground)

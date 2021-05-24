@@ -7,11 +7,11 @@ from utils.math import Mat4, make_scale, make_translation
 
 
 class Treadmill(Entity):
-    model_to_world = make_scale(3.5, 1, 2)
+    model_to_world = make_scale(4, 1, 2)
     position = 0
 
-    range = 40
-    offset = 20
+    range = 60
+    offset = 30
     scaling = 8
 
     car: Car
