@@ -16,11 +16,11 @@ class Entity:
             filename: str
         """
         assert name is not None
-        assert filename is not None
 
         self.name = name
-        self.filename = filename
-        self._init_resources()
+        if filename is not None:
+            self.filename = filename
+            self._init_resources()
 
     def _init_resources(self):
         self.model = ObjModel(self.filename)
