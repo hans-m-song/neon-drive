@@ -7,7 +7,9 @@
 ## Controls
 
 - wasd: move car on road
-- mouse: orbit camera around car
+- mouse movement: orbit camera around car
+- arrow keys: translate camera
+- middle click: reset camera
 
 ## Essential
 

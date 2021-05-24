@@ -76,7 +76,7 @@ class Engine:
         self.keyboard = Keyboard(self.window)
         self.mouse = Mouse(self.window)
         self.time = Time()
-        self.view = View(mouse=self.mouse)
+        self.view = View(mouse=self.mouse, keyboard=self.keyboard)
 
         self.init_resources()
 
