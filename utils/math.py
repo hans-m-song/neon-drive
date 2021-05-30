@@ -219,3 +219,8 @@ def clamp(
     limit_min: float = 0.0,
 ) -> float:
     return max(min(value, limit_max), limit_min)
+
+
+def transform_point(mat4x4, point):
+    x, y, z, w = mat4x4 * [point[0], point[1], point[2], 1.0]
+    return vec3(x, y, z) / w

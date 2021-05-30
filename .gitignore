@@ -132,3 +132,6 @@ dmypy.json
 imgui.ini
 assets
 .vscode
+lab*
+assets/*
+mega*

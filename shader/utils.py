@@ -1,7 +1,12 @@
+from ctypes import c_float, c_uint
+
 import numpy as np
 import OpenGL.GL as gl
 
-from utils.math import Mat3, Mat4
+from utils.log import get_logger
+from utils.math import Mat3, Mat4, flatten
+
+logger = get_logger()
 
 
 def get_shader_info_log(obj):
@@ -9,29 +14,26 @@ def get_shader_info_log(obj):
     return gl.glGetShaderInfoLog(obj).decode() if logLength > 0 else ""
 
 
-def compile_and_attach_shader(shaderProgram, shaderType, sources):
-    shader = gl.glCreateShader(shaderType)
+def compile_and_attach_shader(program, type, sources):
+    shader = gl.glCreateShader(type)
     gl.glShaderSource(shader, sources)
     gl.glCompileShader(shader)
 
-    compileOk = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS)
+    compile_success = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS)
 
-    if not compileOk:
-        shaderTypeStr = {
-            gl.GL_VERTEX_SHADER: "VERTEX",
-            gl.GL_FRAGMENT_SHADER: "FRAGMENT",
-            gl.GL_COMPUTE_SHADER: "COMPUTE",
-        }
-        err = get_shader_info_log(shader)
-        print(
-            "%s SHADER COMPILE ERROR: '%s'"
-            % (shaderTypeStr.get(shaderType, "??"), err)
+    if not compile_success:
+        type_str = (
+            "vertex"
+            if type == gl.GL_VERTEX_SHADER
+            else "fragment"
+            if type == gl.GL_FRAGMENT_SHADER
+            else "unknown"
         )
-        return False
+        err = get_shader_info_log(shader)
+        raise RuntimeError(f"{type_str} shader failed to compile: {err}")
 
-    gl.glAttachShader(shaderProgram, shader)
+    gl.glAttachShader(program, shader)
     gl.glDeleteShader(shader)
-    return True
 
 
 def build_shader(
@@ -42,31 +44,35 @@ def build_shader(
 ):
     shader = gl.glCreateProgram()
 
-    if compile_and_attach_shader(
-        shader, gl.GL_VERTEX_SHADER, vertex_shader_sources
-    ) and compile_and_attach_shader(
-        shader, gl.GL_FRAGMENT_SHADER, fragment_shader_sources
-    ):
-        for name, loc in attrib_locs.items():
-            gl.glBindAttribLocation(shader, loc, name)
-        for name, loc in frag_data_locs.items():
-            gl.glBindFragDataLocation(shader, loc, name)
+    compile_and_attach_shader(
+        shader,
+        gl.GL_VERTEX_SHADER,
+        vertex_shader_sources,
+    )
 
-        gl.glLinkProgram(shader)
-        linkStatus = gl.glGetProgramiv(shader, gl.GL_LINK_STATUS)
-        if not linkStatus:
-            err = gl.glGetProgramInfoLog(shader).decode()
-            print("SHADER LINKER ERROR: '%s'" % err)
-            gl.glDeleteProgram(shader)
-            return None
-        return shader
-    else:
-        gl.glDeleteProgram(shader)
-        return None
+    compile_and_attach_shader(
+        shader,
+        gl.GL_FRAGMENT_SHADER,
+        fragment_shader_sources,
+    )
+
+    for name, loc in attrib_locs.items():
+        gl.glBindAttribLocation(shader, loc, name)
+
+    for name, loc in frag_data_locs.items():
+        gl.glBindFragDataLocation(shader, loc, name)
+
+    gl.glLinkProgram(shader)
+    link_success = gl.glGetProgramiv(shader, gl.GL_LINK_STATUS)
+    if not link_success:
+        err = gl.glGetProgramInfoLog(shader).decode()
+        raise RuntimeError(f"shader failed to link: {err}")
+
+    return shader
 
 
-def set_uniform(shaderProgram, uniformName, value):
-    loc = gl.glGetUniformLocation(shaderProgram, uniformName)
+def set_uniform(program, name, value):
+    loc = gl.glGetUniformLocation(program, name)
     if isinstance(value, float):
         gl.glUniform1f(loc, value)
     elif isinstance(value, int):
@@ -81,4 +87,73 @@ def set_uniform(shaderProgram, uniformName, value):
     elif isinstance(value, (Mat3, Mat4)):
         value._set_open_gl_uniform(loc)
     else:
-        assert False  # If this happens the type was not supported, check your argument types and either add a new else case above or change the type
+        raise ValueError(f"invalid uniform value: '{name}': {value}")
+
+
+def load_glsl(filename):
+    with open(f"shader/{filename}.glsl", "r") as f:
+        return f.read()
+
+
+def create_vertex_obj():
+    return gl.glGenVertexArrays(1)
+
+
+def prepare_vertex_data_buffer(vertexArrayObject, data, attributeIndex):
+    gl.glBindVertexArray(vertexArrayObject)
+    buffer = gl.glGenBuffers(1)
+    flat_data = flatten(data)
+    data_buffer = (c_float * len(flat_data))(*flat_data)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
+    gl.glBufferData(gl.GL_ARRAY_BUFFER, data_buffer, gl.GL_STATIC_DRAW)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
+    gl.glVertexAttribPointer(
+        attributeIndex,
+        len(data[0]),
+        gl.GL_FLOAT,
+        gl.GL_FALSE,
+        0,
+        None,
+    )
+    gl.glEnableVertexAttribArray(attributeIndex)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
+    gl.glBindVertexArray(0)
+
+    return buffer
+
+
+def prepare_index_data_buffer(vertexArrayObject, indexData):
+    gl.glBindVertexArray(vertexArrayObject)
+    buffer = gl.glGenBuffers(1)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
+    data_buffer = (c_uint * len(indexData))(*indexData)
+    gl.glBufferData(gl.GL_ARRAY_BUFFER, data_buffer, gl.GL_STATIC_DRAW)
+    gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, buffer)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
+    gl.glBindVertexArray(0)
+
+    return buffer
+
+
+def create_default_texture(data):
+    texture = gl.glGenTextures(1)
+    gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
+    gl.glTexImage2D(
+        gl.GL_TEXTURE_2D,
+        0,
+        gl.GL_RGBA,
+        1,
+        1,
+        0,
+        gl.GL_RGBA,
+        gl.GL_FLOAT,
+        data,
+    )
+    gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
+
+    return texture
+
+
+def bind_texture(unit, id, type=gl.GL_TEXTURE_2D):
+    gl.glActiveTexture(gl.GL_TEXTURE0 + unit)
+    gl.glBindTexture(type, id)
