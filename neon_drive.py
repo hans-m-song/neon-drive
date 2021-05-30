@@ -16,7 +16,12 @@ def run():
         car = Car()
         ground = Ground()
         treadmill_parts = [
-            Treadmill(car=car, position=i, count=10) for i in range(10)
+            Treadmill(
+                car=car,
+                position=i,
+                count=15,
+            )
+            for i in range(15)
         ]
 
         engine.add_resource(car, view_target=True)

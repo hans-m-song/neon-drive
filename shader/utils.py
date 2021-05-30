@@ -1,4 +1,5 @@
 from ctypes import c_float, c_uint
+from functools import cache
 
 import numpy as np
 import OpenGL.GL as gl
@@ -30,7 +31,7 @@ def compile_and_attach_shader(program, type, sources):
             else "unknown"
         )
         err = get_shader_info_log(shader)
-        raise RuntimeError(f"{type_str} shader failed to compile: {err}")
+        raise RuntimeError(err)
 
     gl.glAttachShader(program, shader)
     gl.glDeleteShader(shader)
@@ -66,7 +67,7 @@ def build_shader(
     link_success = gl.glGetProgramiv(shader, gl.GL_LINK_STATUS)
     if not link_success:
         err = gl.glGetProgramInfoLog(shader).decode()
-        raise RuntimeError(f"shader failed to link: {err}")
+        raise RuntimeError(err)
 
     return shader
 
@@ -90,6 +91,7 @@ def set_uniform(program, name, value):
         raise ValueError(f"invalid uniform value: '{name}': {value}")
 
 
+@cache
 def load_glsl(filename):
     with open(f"shader/{filename}.glsl", "r") as f:
         return f.read()
