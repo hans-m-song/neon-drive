@@ -8,21 +8,23 @@ from utils.math import Mat4, make_scale, make_translation
 
 class Treadmill(Entity):
     model_to_world = make_scale(4, 1, 2)
-    position = 0
 
-    range = 60
-    offset = 30
-    scaling = 8
+    position = 0
+    scaling = 8.7
+    range: int
+    offset: int
 
     car: Car
 
-    def __init__(self, car: Car = None, position: int = 0):
+    def __init__(self, car: Car = None, position: int = 0, count: int = 1):
         super().__init__(name="Ground", filename="assets/road/road.obj")
         assert car is not None
         assert position > -1
 
         self.car = car
         self.position = position * self.scaling
+        self.range = count * self.scaling
+        self.offset = self.range / 2
 
     def update(
         self,
