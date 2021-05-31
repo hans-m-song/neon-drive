@@ -1,6 +1,6 @@
 import sys
 from time import sleep
-from typing import Any
+from typing import Any, Type, Union
 
 import glfw
 import OpenGL.GL as gl
@@ -11,6 +11,8 @@ from renderer.control import Keyboard, Mouse, Time
 from renderer.View import View
 from utils.log import get_logger
 
+Window = Any
+
 logger = get_logger()
 
 
@@ -18,7 +20,7 @@ def get_info(prop):
     return gl.glGetString(prop).decode("utf8")
 
 
-def init_window():
+def init_window() -> Window:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 2)
     glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
@@ -50,20 +52,20 @@ def init_window():
 
 
 class Engine:
-    window: Any
+    window: Window
 
     time: Time
     keyboard: Keyboard
     mouse: Mouse
     view: View
 
-    s_per_frame = 1.0 / constants.TARGET_FPS
+    s_per_frame: float = 1.0 / constants.TARGET_FPS
 
-    view_target: Entity = None
+    view_target: Union[Type[Entity], None] = None
 
-    resources = []
+    resources: list[Type[Entity]] = []
 
-    def __init__(self):
+    def __init__(self) -> None:
         if not glfw.init():
             sys.exit(1)
 
@@ -80,7 +82,9 @@ class Engine:
 
         self.init_resources()
 
-    def add_resource(self, resource: Entity, view_target: bool = False):
+    def add_resource(
+        self, resource: Entity, view_target: bool = False
+    ) -> None:
         self.resources.append(resource)
 
         if view_target:
@@ -92,16 +96,16 @@ class Engine:
             ),
         )
 
-    def run(self):
+    def run(self) -> None:
         while not glfw.window_should_close(self.window):
             self.tick()
 
         self._cleanup()
 
-    def init_resources(self):
+    def init_resources(self) -> None:
         pass
 
-    def update(self, width, height):
+    def update(self, width: int, height: int) -> None:
         self.time.update()
         self.keyboard.update()
         self.mouse.update()
@@ -114,7 +118,7 @@ class Engine:
                 time=self.time,
             )
 
-    def render(self, width, height):
+    def render(self, width: int, height: int) -> None:
         gl.glViewport(0, 0, width, height)
         gl.glClearColor(0.2, 0.3, 0.1, 1.0)
         gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT)
@@ -126,7 +130,7 @@ class Engine:
         for resource in self.resources:
             resource.render(view=self.view)
 
-    def tick(self):
+    def tick(self) -> None:
         width, height = glfw.get_framebuffer_size(self.window)
 
         self.update(width, height)

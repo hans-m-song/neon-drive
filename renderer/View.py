@@ -1,4 +1,5 @@
 import math
+from typing import List, Tuple
 
 from renderer.control import Keyboard, Mouse
 from utils.math import (
@@ -12,40 +13,40 @@ from utils.math import (
     vec3,
 )
 
-DEFAULT_VIEW_OFFSET = [0, 0]
+DEFAULT_VIEW_OFFSET = [0.0, 0.0]
 DEFAULT_VIEW_TARGET = [0.0, 0.0, 0.0]
-DEFAULT_ANGLE_YAW = 180
-DEFAULT_ANGLE_PITCH = 20
+DEFAULT_ANGLE_YAW = 180.0
+DEFAULT_ANGLE_PITCH = 20.0
 
 
 class View:
-    width = 0
-    height = 0
-    aspect_ratio = 0
+    width: int = 0
+    height: int = 0
+    aspect_ratio: float = 0.0
 
-    fov = 60.0
-    distance_near = 0.2
-    distance_far = 2000.0
+    fov: float = 60.0
+    distance_near: float = 0.2
+    distance_far: float = 2000.0
 
-    view_to_clip_transform = Mat4()
-    world_to_view_transform = Mat4()
+    view_to_clip_transform: Mat4 = Mat4()
+    world_to_view_transform: Mat4 = Mat4()
 
-    view_offset = DEFAULT_VIEW_OFFSET
-    view_target = DEFAULT_VIEW_TARGET
-    view_up = [0.0, 1.0, 0.0]
+    view_offset: list[float] = DEFAULT_VIEW_OFFSET
+    view_target: list[float] = DEFAULT_VIEW_TARGET
+    view_up: list[float] = [0.0, 1.0, 0.0]
 
-    angle_yaw = DEFAULT_ANGLE_YAW
-    angle_pitch = DEFAULT_ANGLE_PITCH
-    rotation = Mat4() * make_rotation_y(math.radians(135))
+    angle_yaw: float = DEFAULT_ANGLE_YAW
+    angle_pitch: float = DEFAULT_ANGLE_PITCH
+    rotation: Mat4 = Mat4() * make_rotation_y(math.radians(135))
 
     # ignore the first tick to ignore mouse moving to (0, 0)
-    first_tick = True
+    first_tick: bool = True
 
-    mouse_move_scale = 0.05
-    camera_translate_scale = 0.1
+    mouse_move_scale: float = 0.05
+    camera_translate_scale: float = 0.1
 
-    max = 10
-    min = -10
+    max: int = 10
+    min: int = -10
 
     mouse: Mouse
     keyboard: Keyboard
@@ -57,7 +58,7 @@ class View:
         self.mouse = mouse
         self.keyboard = keyboard
 
-    def calculate_offset(self):
+    def calculate_offset(self) -> list[float, float]:
         x, y = self.view_offset
 
         # horizontal movement
@@ -74,7 +75,7 @@ class View:
 
         return [x, y]
 
-    def calculate_angle(self):
+    def calculate_angle(self) -> Tuple[float, float, Mat3]:
         delta_x, delta_y = self.mouse.delta
 
         if self.first_tick:

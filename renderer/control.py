@@ -1,3 +1,5 @@
+from typing import Any, Dict, Tuple
+
 import glfw
 
 MOUSE_MAP = {
@@ -130,16 +132,20 @@ KEY_MAP = {
     "MENU": glfw.KEY_MENU,
 }
 
+Window = Any
+
 
 class WithWindow:
-    def __init__(self, window):
+    window: Window
+
+    def __init__(self, window: Window) -> None:
         self.window = window
 
 
 class Keyboard(WithWindow):
-    state = {}
+    state: Dict[str, bool] = {}
 
-    def update(self):
+    def update(self) -> None:
         state = {}
         for name, id in KEY_MAP.items():
             state[name] = glfw.get_key(self.window, id) == glfw.PRESS
@@ -151,11 +157,10 @@ class Keyboard(WithWindow):
 
 
 class Mouse(WithWindow):
-    position = (0, 0)
-    delta = (0, 0)
+    position: Tuple[float, float] = (0, 0)
+    delta: Tuple[float, float] = (0, 0)
 
-    def update(self):
-
+    def update(self) -> None:
         old_x, old_y = self.position
         x, y = glfw.get_cursor_pos(self.window)
 
@@ -164,10 +169,10 @@ class Mouse(WithWindow):
 
 
 class Time:
-    now = glfw.get_time()
-    delta = 0
+    now: float = glfw.get_time()
+    delta: float = 0
 
-    def update(self):
+    def update(self) -> None:
         prev_time = self.now
         self.now = glfw.get_time()
         self.delta = self.now - prev_time
