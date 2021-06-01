@@ -23,11 +23,6 @@ from utils.math import (
 
 
 class Ground(Entity):
-    TU_Diffuse = 0
-    TU_Opacity = 1
-    TU_Specular = 2
-    TU_Normal = 3
-
     rotation = Mat4()
     size = 4
     scale = 1
@@ -45,7 +40,7 @@ class Ground(Entity):
 
         self.generate_mesh()
         self.upload_data()
-        self.shader = Shader()
+        self.shader = Shader(attribute_overrides={})
 
     def generate_mesh(self):
         vertices = []
@@ -126,28 +121,9 @@ class Ground(Entity):
     def render(self, view: View = None):
         super().render(view=view)
 
-        model_to_world = Mat4()
-
-        model_to_clip_transform = (
-            view.view_to_clip_transform
-            * view.world_to_view_transform
-            * model_to_world
-        )
-        model_to_view_transform = view.world_to_view_transform * model_to_world
-        model_to_view_normal_transform = inverse(
-            transpose(Mat3(model_to_view_transform))
-        )
-
         self.shader.use()
-        self.shader.set_uniforms(
-            {
-                "modelToClipTransform": model_to_clip_transform,
-                "modelToViewTransform": model_to_view_transform,
-                "modelToViewNormalTransform": model_to_view_normal_transform,
-                "worldToViewTransform": view.world_to_view_transform,
-                "viewToClipTransform": view.view_to_clip_transform,
-            }
-        )
+
+        self.shader.set_uniforms(view=view, model_to_world_tranform=Mat4())
 
         gl.glBindVertexArray(self.vertex_obj)
         gl.glDrawElements(

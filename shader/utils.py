@@ -1,5 +1,6 @@
 from ctypes import c_float, c_uint
 from functools import cache
+from typing import Any
 
 import numpy as np
 import OpenGL.GL as gl
@@ -23,13 +24,6 @@ def compile_and_attach_shader(program, type, sources):
     compile_success = gl.glGetShaderiv(shader, gl.GL_COMPILE_STATUS)
 
     if not compile_success:
-        type_str = (
-            "vertex"
-            if type == gl.GL_VERTEX_SHADER
-            else "fragment"
-            if type == gl.GL_FRAGMENT_SHADER
-            else "unknown"
-        )
         err = get_shader_info_log(shader)
         raise RuntimeError(err)
 
@@ -37,12 +31,15 @@ def compile_and_attach_shader(program, type, sources):
     gl.glDeleteShader(shader)
 
 
+Program = Any
+
+
 def build_shader(
     vertex_shader_sources,
     fragment_shader_sources,
     attrib_locs,
     frag_data_locs={},
-):
+) -> Program:
     shader = gl.glCreateProgram()
 
     compile_and_attach_shader(
@@ -91,8 +88,11 @@ def set_uniform(program, name, value):
         raise ValueError(f"invalid uniform value: '{name}': {value}")
 
 
+ShaderSource = Any
+
+
 @cache
-def load_glsl(filename):
+def load_glsl(filename) -> ShaderSource:
     with open(f"shader/{filename}.glsl", "r") as f:
         return f.read()
 
@@ -137,7 +137,10 @@ def prepare_index_data_buffer(vertexArrayObject, indexData):
     return buffer
 
 
-def create_default_texture(data):
+Texture = Any
+
+
+def create_default_texture(data) -> Texture:
     texture = gl.glGenTextures(1)
     gl.glBindTexture(gl.GL_TEXTURE_2D, texture)
     gl.glTexImage2D(
@@ -156,6 +159,6 @@ def create_default_texture(data):
     return texture
 
 
-def bind_texture(unit, id, type=gl.GL_TEXTURE_2D):
+def bind_texture(unit, id, type=gl.GL_TEXTURE_2D) -> None:
     gl.glActiveTexture(gl.GL_TEXTURE0 + unit)
     gl.glBindTexture(type, id)
