@@ -13,7 +13,10 @@ from shader.utils import (
     load_glsl,
     set_uniform,
 )
+from utils.log import get_logger
 from utils.math import Mat3, Mat4, inverse, transform_point, transpose, vec3
+
+logger = get_logger()
 
 
 class Shader:
@@ -62,7 +65,12 @@ class Shader:
         }
         for item, value in default_bindings.items():
             set_uniform(self.program, item, value)
+
         gl.glUseProgram(0)
+
+        logger.debug(
+            f"loaded shader: {vertex_source_filename}, {fragment_source_filename}"
+        )
 
     def use(self):
         gl.glUseProgram(self.program)
@@ -90,6 +98,10 @@ class Shader:
             transpose(Mat3(model_to_view_transform))
         )
 
+        world_to_clip_transform = (
+            view.view_to_clip_transform * view.world_to_view_transform
+        )
+
         uniforms = {}
 
         vertex_uniforms = {
@@ -98,6 +110,7 @@ class Shader:
             "modelToViewNormalTransform": model_to_view_normal_transform,
             "viewToClipTransform": view.view_to_clip_transform,
             "worldToViewTransform": view.world_to_view_transform,
+            "worldToClipTransform": world_to_clip_transform,
         }
 
         fragment_uniforms = {
@@ -112,9 +125,7 @@ class Shader:
             "fogExtinctionCoeff": 0.05,
         }
 
-        uniforms.update(
-            vertex_uniforms,
-        )
+        uniforms.update(vertex_uniforms)
         uniforms.update(fragment_uniforms)
         uniforms.update(uniform_overrides)
 

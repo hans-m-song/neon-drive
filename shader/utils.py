@@ -101,34 +101,33 @@ def create_vertex_obj():
     return gl.glGenVertexArrays(1)
 
 
-def prepare_vertex_data_buffer(vertexArrayObject, data, attributeIndex):
-    gl.glBindVertexArray(vertexArrayObject)
+def prepare_vertex_data_buffer(vertex_array_object, data, attribute_index):
+    gl.glBindVertexArray(vertex_array_object)
     buffer = gl.glGenBuffers(1)
     flat_data = flatten(data)
     data_buffer = (c_float * len(flat_data))(*flat_data)
     gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
     gl.glBufferData(gl.GL_ARRAY_BUFFER, data_buffer, gl.GL_STATIC_DRAW)
-    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
     gl.glVertexAttribPointer(
-        attributeIndex,
+        attribute_index,
         len(data[0]),
         gl.GL_FLOAT,
         gl.GL_FALSE,
         0,
         None,
     )
-    gl.glEnableVertexAttribArray(attributeIndex)
+    gl.glEnableVertexAttribArray(attribute_index)
     gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
     gl.glBindVertexArray(0)
 
     return buffer
 
 
-def prepare_index_data_buffer(vertexArrayObject, indexData):
-    gl.glBindVertexArray(vertexArrayObject)
+def prepare_index_data_buffer(vertex_array_object, data):
+    gl.glBindVertexArray(vertex_array_object)
     buffer = gl.glGenBuffers(1)
     gl.glBindBuffer(gl.GL_ARRAY_BUFFER, buffer)
-    data_buffer = (c_uint * len(indexData))(*indexData)
+    data_buffer = (c_uint * len(data))(*data)
     gl.glBufferData(gl.GL_ARRAY_BUFFER, data_buffer, gl.GL_STATIC_DRAW)
     gl.glBindBuffer(gl.GL_ELEMENT_ARRAY_BUFFER, buffer)
     gl.glBindBuffer(gl.GL_ARRAY_BUFFER, 0)
@@ -157,8 +156,3 @@ def create_default_texture(data) -> Texture:
     gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
     return texture
-
-
-def bind_texture(unit, id, type=gl.GL_TEXTURE_2D) -> None:
-    gl.glActiveTexture(gl.GL_TEXTURE0 + unit)
-    gl.glBindTexture(type, id)
