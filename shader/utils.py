@@ -54,11 +54,7 @@ def build_shader(
         fragment_shader_sources,
     )
 
-    for name, loc in attrib_locs.items():
-        gl.glBindAttribLocation(shader, loc, name)
-
-    for name, loc in frag_data_locs.items():
-        gl.glBindFragDataLocation(shader, loc, name)
+    set_attribute_location(shader, attrib_locs, frag_data_locs)
 
     gl.glLinkProgram(shader)
     link_success = gl.glGetProgramiv(shader, gl.GL_LINK_STATUS)
@@ -67,6 +63,14 @@ def build_shader(
         raise RuntimeError(err)
 
     return shader
+
+
+def set_attribute_location(program, vertex={}, fragment={}):
+    for name, loc in vertex.items():
+        gl.glBindAttribLocation(program, loc, name)
+
+    for name, loc in fragment.items():
+        gl.glBindFragDataLocation(program, loc, name)
 
 
 def set_uniform(program, name, value):

@@ -41,13 +41,6 @@ class Entity:
         assert mouse is not None
         assert time is not None
 
-    def draw_ui(self, view: View = None):
-        """
-        kwargs:
-            view: View
-        """
-        assert view is not None
-
     def render(self, view: View = None):
         """
         kwargs:

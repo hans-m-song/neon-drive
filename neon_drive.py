@@ -6,6 +6,24 @@ from renderer.Engine import Engine
 from utils.log import init_logger
 
 
+def load_assets(engine: Engine):
+    car = Car()
+    ground = Ground()
+    treadmill_parts = [
+        Treadmill(
+            car=car,
+            position=i,
+            count=15,
+        )
+        for i in range(15)
+    ]
+
+    engine.add_resource(car, view_target=True)
+    engine.add_resource(ground)
+    for part in treadmill_parts:
+        engine.add_resource(part)
+
+
 def run():
     logger = init_logger()
     logger.info("Starting neon drive...")
@@ -13,21 +31,7 @@ def run():
     engine = Engine()
 
     if not constants.SKIP_ASSET_LOAD:
-        car = Car()
-        ground = Ground()
-        treadmill_parts = [
-            Treadmill(
-                car=car,
-                position=i,
-                count=15,
-            )
-            for i in range(15)
-        ]
-
-        engine.add_resource(car, view_target=True)
-        engine.add_resource(ground)
-        for part in treadmill_parts:
-            engine.add_resource(part)
+        load_assets(engine)
 
     engine.run()
 

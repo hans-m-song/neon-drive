@@ -80,6 +80,7 @@ class Shader:
         view: View = None,
         model_to_world_tranform: Mat4 = None,
         uniform_overrides: Dict[str, Any] = {},
+        use_defaults=True,
     ):
         assert view is not None
         assert model_to_world_tranform is not None
@@ -104,29 +105,31 @@ class Shader:
 
         uniforms = {}
 
-        vertex_uniforms = {
-            "modelToClipTransform": model_to_clip_transform,
-            "modelToViewTransform": model_to_view_transform,
-            "modelToViewNormalTransform": model_to_view_normal_transform,
-            "viewToClipTransform": view.view_to_clip_transform,
-            "worldToViewTransform": view.world_to_view_transform,
-            "worldToClipTransform": world_to_clip_transform,
-        }
+        if use_defaults:
+            vertex_uniforms = {
+                "modelToClipTransform": model_to_clip_transform,
+                "modelToViewTransform": model_to_view_transform,
+                "modelToViewNormalTransform": model_to_view_normal_transform,
+                "viewToClipTransform": view.view_to_clip_transform,
+                "worldToViewTransform": view.world_to_view_transform,
+                "worldToClipTransform": world_to_clip_transform,
+            }
 
-        fragment_uniforms = {
-            "viewSpaceLightPosition": transform_point(
-                view.world_to_view_transform, vec3(0)
-            ),
-            "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
-            "ambientLightColourAndIntensity": vec3(0.1),
-            "viewToWorldRotationTransform": inverse(
-                Mat3(view.world_to_view_transform)
-            ),
-            "fogExtinctionCoeff": 0.05,
-        }
+            fragment_uniforms = {
+                "viewSpaceLightPosition": transform_point(
+                    view.world_to_view_transform, vec3(0)
+                ),
+                "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
+                "ambientLightColourAndIntensity": vec3(0.1),
+                "viewToWorldRotationTransform": inverse(
+                    Mat3(view.world_to_view_transform)
+                ),
+                "fogExtinctionCoeff": 0.05,
+            }
 
-        uniforms.update(vertex_uniforms)
-        uniforms.update(fragment_uniforms)
+            uniforms.update(vertex_uniforms)
+            uniforms.update(fragment_uniforms)
+
         uniforms.update(uniform_overrides)
 
         for item, value in uniforms.items():

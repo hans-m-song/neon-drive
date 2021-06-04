@@ -25,6 +25,7 @@ class View:
     aspect_ratio: float = 0.0
 
     fov: float = 60.0
+    camera_distance: float = 20.0
     distance_near: float = 0.2
     distance_far: float = 2000.0
 
@@ -107,17 +108,17 @@ class View:
             self.distance_far,
         )
 
+        self.angle_yaw, self.angle_pitch, angle = self.calculate_angle()
+        self.view_offset = self.calculate_offset()
+
         if self.keyboard.state["MOUSE_BUTTON_MIDDLE"]:
             self.view_offset = DEFAULT_VIEW_OFFSET
             self.view_target = DEFAULT_VIEW_TARGET
             self.angle_yaw = DEFAULT_ANGLE_YAW
             self.angle_pitch = DEFAULT_ANGLE_PITCH
 
-        self.angle_yaw, self.angle_pitch, angle = self.calculate_angle()
-        self.view_offset = self.calculate_offset()
-
         offset = vec3(*self.view_offset)
-        position = offset + (angle * [0, 0, 20])
+        position = offset + (angle * [0, 0, self.camera_distance])
         target = self.view_target if not view_target else view_target.position
         offset_target = vec3(*target) + offset
 

@@ -1,3 +1,5 @@
+from typing import Any
+
 import OpenGL.GL as gl
 
 from entities.ObjModel import ObjModel
@@ -9,6 +11,7 @@ def draw_obj(
     model: ObjModel = None,
     view: View = None,
     model_to_world: Mat4 = None,
+    shader: Any = None,
 ):
     assert model is not None
     assert view is not None
@@ -37,4 +40,4 @@ def draw_obj(
         "modelToViewNormalTransform": model_to_view_normal,
     }
 
-    model.render(None, None, transforms)
+    model.render(shaderProgram=shader, transforms=transforms)

@@ -1,6 +1,7 @@
-from typing import Tuple
+from typing import Callable, Tuple
 
 import OpenGL.GL as gl
+from numpy import void
 from PIL import Image
 
 from shader.utils import set_uniform
@@ -13,13 +14,18 @@ class Texture:
     texture_id: int
     size: Tuple[float, float]
 
-    def __init__(self, filename: str) -> None:
+    def __init__(
+        self,
+        filename: str,
+        set_parameters: Callable[[], None] = lambda _: None,
+        mode="RGB",
+    ) -> None:
         self.texture_id = gl.glGenTextures(1)
         gl.glBindTexture(gl.GL_TEXTURE_2D, self.texture_id)
 
         with Image.open(f"assets/{filename}") as image:
             self.size = image.size
-            data = image.tobytes("raw", "RGB", 0, -1)
+            data = image.tobytes("raw", mode, 0, -1)
 
             gl.glTexImage2D(
                 gl.GL_TEXTURE_2D,
@@ -34,17 +40,7 @@ class Texture:
 
             gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
 
-            gl.glTexParameteri(
-                gl.GL_TEXTURE_2D,
-                gl.GL_TEXTURE_MAG_FILTER,
-                gl.GL_LINEAR,
-            )
-
-            gl.glTexParameteri(
-                gl.GL_TEXTURE_2D,
-                gl.GL_TEXTURE_MIN_FILTER,
-                gl.GL_NEAREST,
-            )
+            set_parameters()
 
             gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
