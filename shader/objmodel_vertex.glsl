@@ -14,11 +14,13 @@ out VertexData {
     vec3 v2f_viewSpaceNormal;
     vec2 v2f_texCoord;
     vec3 v2f_worldSpacePosition;
+    vec3 v2f_viewSpacePosition;
 };
 
 void main() {
     gl_Position = modelToClipTransform * vec4(positionAttribute, 1.0);
     v2f_viewSpaceNormal = normalize(modelToViewNormalTransform * normalAttribute);
+    v2f_viewSpacePosition = (modelToViewTransform * vec4(positionAttribute, 1.0)).xyz;
     v2f_texCoord = texCoordAttribute;
     v2f_worldSpacePosition = positionAttribute;
 }

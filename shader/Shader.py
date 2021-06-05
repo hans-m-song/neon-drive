@@ -113,15 +113,15 @@ class Shader:
                 "worldToViewTransform": view.world_to_view_transform,
                 "viewToClipTransform": view.view_to_clip_transform,
                 "viewPosition": view.position,
+                "origin": vec3(0),
             }
-
-            print(view.position)
 
             fragment_uniforms = {
                 "viewSpaceLightPosition": view_space_light_position,
                 "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
                 "ambientLightColourAndIntensity": vec3(0.1),
-                "fogExtinctionCoeff": 0.5,
+                "fogExtinctionOffset": 35.0,
+                "fogExtinctionCoeff": 0.001,
                 "fogColor": vec3(0.73),
             }
 

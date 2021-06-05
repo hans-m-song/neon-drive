@@ -82,11 +82,12 @@ class Ground(Entity):
 
         self.shader.set_uniforms(
             view=view,
-            model_to_world_tranform=make_scale(100, 1, 100),
+            model_to_world_tranform=make_scale(150, 1, 150),
             uniform_overrides={
                 "groundTexture": 0,
-                "texCoordScale": 5.0,
-                "viewPosition": view.position,
+                "texCoordScale": 10.0,
+                "fogExtinctionOffset": 35.0,
+                "fogExtinctionCoeff": 0.006,
             },
         )
 

@@ -39,10 +39,12 @@ class Treadmill(Entity):
     def render(self, view: View = None):
         super().render(view=view)
 
+        origin = [0, abs(-self.position + self.offset), 0]
+
         draw_obj(
             model=self.model,
             view=view,
             model_to_world=self.model_to_world
             * make_translation(0, 0, -self.position + self.offset),
-            uniform_overrides={"viewPosition": view.position},
+            uniform_overrides={"origin": origin},
         )

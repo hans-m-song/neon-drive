@@ -36,7 +36,8 @@ def draw_obj(
 
     uniforms = {
         "viewSpaceLightDirection": [0.0, 0.0, -1.0],
-        "fogExtinctionCoeff": 0.005,
+        "fogExtinctionOffset": 35.0,
+        "fogExtinctionCoeff": 0.002,
         "fogColor": vec3(0.73),
         "enableSrgb": True,
         "origin": vec3(0),

@@ -33,7 +33,10 @@ class ObjModel:
     TU_Normal = 3
     TU_EnvMap = 4
 
+    fileName = "ObjModel"
+
     def __init__(self, fileName):
+        self.fileName = os.path.basename(fileName)
         self.defaultTextureOne = gl.glGenTextures(1)
         gl.glBindTexture(gl.GL_TEXTURE_2D, self.defaultTextureOne)
         gl.glTexImage2D(
