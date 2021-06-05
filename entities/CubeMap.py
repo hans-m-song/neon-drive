@@ -4,16 +4,11 @@ import OpenGL.GL as gl
 from PIL import Image
 
 from entities.Entity import Entity
-from entities.ObjModel import ObjModel
 from renderer.View import View
 from shader.Shader import Shader
-from shader.utils import (
-    create_vertex_obj,
-    prepare_vertex_data_buffer,
-    set_uniform,
-)
+from shader.utils import create_vertex_obj, prepare_vertex_data_buffer
 from utils.log import get_logger
-from utils.math import Mat4
+from utils.math import make_scale
 
 logger = get_logger()
 
@@ -66,7 +61,6 @@ CUBE_VERTICES = [
 
 def load_cube_textures() -> int:
     texture_id = gl.glGenTextures(1)
-    gl.glActiveTexture(gl.GL_TEXTURE0)
     gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, texture_id)
 
     surfaces = {
@@ -106,6 +100,32 @@ def load_cube_textures() -> int:
         gl.GL_LINEAR_MIPMAP_LINEAR,
     )
 
+    gl.glTexParameteri(
+        gl.GL_TEXTURE_2D,
+        gl.GL_TEXTURE_WRAP_R,
+        gl.GL_CLAMP_TO_EDGE,
+    )
+    gl.glTexParameteri(
+        gl.GL_TEXTURE_2D,
+        gl.GL_TEXTURE_WRAP_S,
+        gl.GL_CLAMP_TO_EDGE,
+    )
+    gl.glTexParameteri(
+        gl.GL_TEXTURE_2D,
+        gl.GL_TEXTURE_WRAP_T,
+        gl.GL_CLAMP_TO_EDGE,
+    )
+    gl.glTexParameteri(
+        gl.GL_TEXTURE_2D,
+        gl.GL_TEXTURE_MAG_FILTER,
+        gl.GL_LINEAR,
+    )
+    gl.glTexParameteri(
+        gl.GL_TEXTURE_2D,
+        gl.GL_TEXTURE_MIN_FILTER,
+        gl.GL_LINEAR,
+    )
+
     return texture_id
 
 
@@ -134,9 +154,8 @@ class CubeMap(Entity):
         self.vertex_obj = create_vertex_obj()
         prepare_vertex_data_buffer(self.vertex_obj, CUBE_VERTICES, 0)
 
-    def use(self, shader):
-        # set_uniform(shader, "environmentCubeTexture", ObjModel.TU_EnvMap)
-        gl.glActiveTexture(gl.GL_TEXTURE0)
+    def use(self):
+        gl.glActiveTexture(gl.GL_TEXTURE3)
         gl.glBindTexture(gl.GL_TEXTURE_CUBE_MAP, self.texture_id)
 
     def render(self, view: View = None):
@@ -147,7 +166,7 @@ class CubeMap(Entity):
 
         self.shader.set_uniforms(
             view=view,
-            model_to_world_tranform=Mat4(),
+            model_to_world_tranform=make_scale(10, 50, 50),
             uniform_overrides={
                 "cubemap": 0,
                 "texCoordScale": 5.0,

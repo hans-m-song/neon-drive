@@ -7,5 +7,5 @@ uniform samplerCube cubemap;
 out vec4 fragmentColor;
 
 void main() {
-    fragmentColor = texture(cubemap, v2f_textureCoord);
+    fragmentColor = textureCube(cubemap, vec3(v2f_textureCoord, 1.0));
 }
