@@ -1,5 +1,6 @@
 import constants
 from entities.Car import Car
+from entities.CubeMap import CubeMap
 from entities.Ground import Ground
 from entities.Light import Light
 from entities.Treadmill import Treadmill
@@ -8,16 +9,13 @@ from utils.log import init_logger
 
 
 def load_assets(engine: Engine):
+    cubemap = CubeMap()
     car = Car()
-    lightL = Light(car=car, position="L")
-    lightR = Light(car=car, position="R")
-    ground = Ground(car=car)
+    lightL = Light(cubemap=cubemap, car=car, position="L")
+    lightR = Light(cubemap=cubemap, car=car, position="R")
+    ground = Ground(cubemap=cubemap, car=car)
     treadmill_parts = [
-        Treadmill(
-            car=car,
-            position=i,
-            count=6,
-        )
+        Treadmill(car=car, cubemap=cubemap, position=i, count=6)
         for i in range(6)
     ]
 
