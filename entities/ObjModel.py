@@ -6,37 +6,13 @@ from ctypes import c_float
 import OpenGL.GL as gl
 from PIL import Image
 
-from shader.utils import build_shader
+from shader.utils import (
+    bind_texture,
+    build_shader,
+    create_bind_vertex_attrib_array_float,
+    load_glsl,
+)
 from utils.math import Mat3, Mat4
-
-# T_Eof      = 0,
-# T_MtlLib   = 'm' << 8 | 't'
-# T_UseMtl   = 'u' << 8 | 's'
-# T_Face     = 'f' << 8 | ' '  # line starts with 'f' followed by ' '
-# T_Face2    = 'f' << 8 | '\t' # line starts with 'f' followed by '\t'
-# T_Vertex   = 'v' << 8 | ' '  # line starts with 'v' followed by ' '
-# T_Vertex2  = 'v' << 8 | '\t' # line starts with 'v' followed by '\t'
-# T_Normal   = 'v' << 8 | 'n'
-# T_TexCoord = 'v' << 8 | 't'
-
-
-# def fillBuffer():
-#    if self.bufferPos >= self.bufferEnd:
-#        self.input.read(self.buffer, s_bufferLength);
-#        self.bufferEnd = int(self.input->gcount());
-#        self.bufferPos = 0;
-#    return self.bufferEnd != 0;
-
-
-def flatten(*lll):
-    return [u for ll in lll for l in ll for u in l]
-
-
-def bindTexture(texUnit, textureId, defaultTexture):
-    gl.glActiveTexture(gl.GL_TEXTURE0 + texUnit)
-    gl.glBindTexture(
-        gl.GL_TEXTURE_2D, textureId if textureId != -1 else defaultTexture
-    )
 
 
 class ObjModel:
@@ -55,7 +31,7 @@ class ObjModel:
     TU_Opacity = 1
     TU_Specular = 2
     TU_Normal = 3
-    TU_Max = 4
+    TU_EnvMap = 4
 
     def __init__(self, fileName):
         self.defaultTextureOne = gl.glGenTextures(1)
@@ -187,36 +163,19 @@ class ObjModel:
         self.vertexArrayObject = gl.glGenVertexArrays(1)
         gl.glBindVertexArray(self.vertexArrayObject)
 
-        def createBindVertexAttribArrayFloat(data, attribLoc):
-            bufId = gl.glGenBuffers(1)
-            gl.glBindBuffer(gl.GL_ARRAY_BUFFER, bufId)
-            flatData = flatten(data)
-            data_buffer = (c_float * len(flatData))(*flatData)
-            gl.glBufferData(gl.GL_ARRAY_BUFFER, data_buffer, gl.GL_STATIC_DRAW)
-            gl.glVertexAttribPointer(
-                attribLoc,
-                int(len(flatData) / len(data)),
-                gl.GL_FLOAT,
-                gl.GL_FALSE,
-                0,
-                None,
-            )
-            gl.glEnableVertexAttribArray(attribLoc)
-            return bufId
-
-        self.positionBuffer = createBindVertexAttribArrayFloat(
+        self.positionBuffer = create_bind_vertex_attrib_array_float(
             self.positions, self.AA_Position
         )
-        self.normalBuffer = createBindVertexAttribArrayFloat(
+        self.normalBuffer = create_bind_vertex_attrib_array_float(
             self.normals, self.AA_Normal
         )
-        self.uvBuffer = createBindVertexAttribArrayFloat(
+        self.uvBuffer = create_bind_vertex_attrib_array_float(
             self.uvs, self.AA_TexCoord
         )
-        self.tangentBuffer = createBindVertexAttribArrayFloat(
+        self.tangentBuffer = create_bind_vertex_attrib_array_float(
             self.tangents, self.AA_Tangent
         )
-        self.biTangentBuffer = createBindVertexAttribArrayFloat(
+        self.biTangentBuffer = create_bind_vertex_attrib_array_float(
             self.bitangents, self.AA_Bitangent
         )
 
@@ -317,7 +276,6 @@ class ObjModel:
                     elif tokens[0] == "d":
                         materials[currentMaterial]["alpha"] = float(tokens[1])
 
-        # check of there is a colour texture but the coour is zero and then change it to 1, Maya exporter does this to us...
         for id, m in materials.items():
             for ch in ["diffuse", "specular"]:
                 if m["texture"][ch] != -1 and sum(m["color"][ch]) == 0.0:
@@ -338,9 +296,6 @@ class ObjModel:
             gl.glActiveTexture(gl.GL_TEXTURE0)
             gl.glBindTexture(gl.GL_TEXTURE_2D, texId)
 
-            # NOTE: srgb is used to store pretty much all texture image data (except HDR images, which we don't support)
-            # Thus we use the gl.GL_SRGB_ALPHA to ensure they are correctly converted to linear space when loaded into the shader.
-            # However: normal/bump maps/alpha masks, are typically authored in linear space, and so should not be stored as SRGB texture format.
             data = im.tobytes(
                 "raw", "RGBX" if im.mode == "RGB" else "RGBA", 0, -1
             )
@@ -355,7 +310,6 @@ class ObjModel:
                 gl.GL_UNSIGNED_BYTE,
                 data,
             )
-            # print("    Loaded texture '%s' (%d x %d)"%(fileName, im.size[0], im.size[1]));
             gl.glGenerateMipmap(gl.GL_TEXTURE_2D)
 
             gl.glTexParameterf(
@@ -388,62 +342,53 @@ class ObjModel:
         if not shaderProgram:
             shaderProgram = self.defaultShader
 
-        # Filter chunks based of render flags
         chunks = [ch for ch in self.chunks if ch[3] & renderFlags]
 
         gl.glBindVertexArray(self.vertexArrayObject)
         gl.glUseProgram(shaderProgram)
 
-        # define defaults (identity)
         defaultTfms = {
             "modelToClipTransform": Mat4(),
             "modelToViewTransform": Mat4(),
             "modelToViewNormalTransform": Mat3(),
         }
-        # overwrite defaults
         defaultTfms.update(transforms)
-        # upload map of transforms
         for tfmName, tfm in defaultTfms.items():
             loc = gl.glGetUniformLocation(shaderProgram, tfmName)
             tfm._set_open_gl_uniform(loc)
 
         previousMaterial = None
         for material, chunkOffset, chunkCount, renderFlags in chunks:
-            # as an optimization we only do this if the material has changed between chunks.
-            # for more efficiency still consider sorting chunks based on material (or fusing them?)
             if material != previousMaterial:
                 previousMaterial = material
                 if self.overrideDiffuseTextureWithDefault:
-                    bindTexture(
+                    bind_texture(
                         self.TU_Diffuse,
                         self.defaultTextureOne,
                         self.defaultTextureOne,
                     )
                 else:
-                    bindTexture(
+                    bind_texture(
                         self.TU_Diffuse,
                         material["texture"]["diffuse"],
                         self.defaultTextureOne,
                     )
-                bindTexture(
+                bind_texture(
                     self.TU_Opacity,
                     material["texture"]["opacity"],
                     self.defaultTextureOne,
                 )
-                bindTexture(
+                bind_texture(
                     self.TU_Specular,
                     material["texture"]["specular"],
                     self.defaultTextureOne,
                 )
-                bindTexture(
+                bind_texture(
                     self.TU_Normal,
                     material["texture"]["normal"],
                     self.defaultNormalTexture,
                 )
-                # TODO: can I do uniform buffers from python (yes, I need to use that struct thingo!)
-                # uint32_t matUniformSize = sizeof(MaterialProperties_Std140);
-                # gl.glBindBufferRange(gl.GL_UNIFORM_BUFFER, UBS_MaterialProperties, m_materialPropertiesBuffer, (uint32_t)chunk.material->offset * matUniformSize, matUniformSize);
-                # TODO: this is very slow, it should be packed into an uniform buffer as per above!
+
                 for k, v in material["color"].items():
                     gl.glUniform3fv(
                         gl.glGetUniformLocation(
@@ -466,15 +411,7 @@ class ObjModel:
             gl.glDrawArrays(gl.GL_TRIANGLES, chunkOffset, chunkCount)
 
         gl.glUseProgram(0)
-        # deactivate texture units...
-        # for (int i = TU_Max - 1; i >= 0; --i)
-        # {
-        # gl.glActiveTexture(gl.GL_TEXTURE0 + i);
-        # gl.glBindTexture(gl.GL_TEXTURE_2D, 0);
-        # }
 
-    # useful to get the default bindings that the ObjModel will use when rendering, use to set up own shaders
-    # for example an optimized shadow shader perhaps?
     def getDefaultAttributeBindings(self):
         return {
             "positionAttribute": self.AA_Position,
@@ -484,9 +421,6 @@ class ObjModel:
             "bitangentAttribute": self.AA_Bitangent,
         }
 
-    #
-    # Helper to set the default uniforms provided by ObjModel. This only needs to be done once after creating the shader
-    # NOTE: the shader must be bound when calling this function.
     def setDefaultUniformBindings(self, shaderProgram):
         assert gl.glGetIntegerv(gl.GL_CURRENT_PROGRAM) == shaderProgram
 
@@ -506,90 +440,11 @@ class ObjModel:
             gl.glGetUniformLocation(shaderProgram, "normal_texture"),
             self.TU_Normal,
         )
-        # gl.glUniformBlockBinding(shaderProgram, gl.glGetUniformBlockIndex(shaderProgram, "MaterialProperties"), UBS_MaterialProperties);
+        gl.glUniform1i(
+            gl.glGetUniformLocation(shaderProgram, "cube_texture"),
+            self.TU_EnvMap,
+        )
 
-    defaultVertexShader = """
-#version 330
+    defaultVertexShader = load_glsl("objmodel_vertex")
 
-in vec3 positionAttribute;
-in vec3	normalAttribute;
-in vec2	texCoordAttribute;
-
-uniform mat4 modelToClipTransform;
-uniform mat4 modelToViewTransform;
-uniform mat3 modelToViewNormalTransform;
-
-// Out variables decalred in a vertex shader can be accessed in the subsequent stages.
-// For a pixel shader the variable is interpolated (the type of interpolation can be modified, try placing 'flat' in front, and also in the fragment shader!).
-out VertexData
-{
-	vec3 v2f_viewSpaceNormal;
-	vec2 v2f_texCoord;
-};
-
-void main() 
-{
-	// gl_Position is a buit in out variable that gets passed on to the clipping and rasterization stages.
-  // it must be written in order to produce any drawn geometry. 
-  // We transform the position using one matrix multiply from model to clip space, note the added 1 at the end of the position.
-	gl_Position = modelToClipTransform * vec4(positionAttribute, 1.0);
-	// We transform the normal to view space using the normal transform (which is the inverse-transpose of the rotation part of the modelToViewTransform)
-  // Just using the rotation is only valid if the matrix contains only rotation and uniform scaling.
-	v2f_viewSpaceNormal = normalize(modelToViewNormalTransform * normalAttribute);
-	// The texture coordinate is just passed through
-	v2f_texCoord = texCoordAttribute;
-}
-"""
-
-    defaultFragmentShader = """
-#version 330
-
-// Input from the vertex shader, will contain the interpolated (i.e., distance weighted average) vaule out put for each of the three vertex shaders that 
-// produced the vertex data for the triangle this fragmet is part of.
-in VertexData
-{
-	vec3 v2f_viewSpaceNormal;
-	vec2 v2f_texCoord;
-};
-
-// Material properties uniform buffer, required by OBJModel.
-// 'MaterialProperties' must be bound to a uniform buffer, OBJModel::setDefaultUniformBindings is of help!
-//layout(std140) uniform MaterialProperties
-//{
-uniform vec3 material_diffuse_color; 
-uniform float material_alpha;
-uniform vec3 material_specular_color; 
-uniform vec3 material_emissive_color; 
-uniform float material_specular_exponent;
-//};
-// Textures set by OBJModel (names must be bound to the right texture unit, OBJModel::setDefaultUniformBindings helps with that.
-uniform sampler2D diffuse_texture;
-uniform sampler2D opacity_texture;
-uniform sampler2D specular_texture;
-uniform sampler2D normal_texture;
-
-// Other uniforms used by the shader
-uniform vec3 viewSpaceLightDirection;
-
-out vec4 fragmentColor;
-
-// If we do not convert the colour to srgb before writing it out it looks terrible! All our lighting is done in linear space
-// (which it should be!), and the frame buffer is srgb by default. So we must convert, or somehow create a linear frame buffer...
-vec3 toSrgb(vec3 color)
-{
-  return pow(color, vec3(1.0 / 2.2));
-}
-
-void main() 
-{
-	// Manual alpha test (note: alpha test is no longer part of Opengl 3.3).
-	if (texture(opacity_texture, v2f_texCoord).r < 0.5)
-	{
-		discard;
-	}
-
-	vec3 materialDiffuse = texture(diffuse_texture, v2f_texCoord).xyz * material_diffuse_color;
-	vec3 color = materialDiffuse * (0.1 + 0.9 * max(0.0, dot(v2f_viewSpaceNormal, -viewSpaceLightDirection))) + material_emissive_color;
-	fragmentColor = vec4(toSrgb(color), material_alpha);
-}
-"""
+    defaultFragmentShader = load_glsl("objmodel_fragment")

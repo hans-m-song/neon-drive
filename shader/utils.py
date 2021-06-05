@@ -160,3 +160,28 @@ def create_default_texture(data) -> Texture:
     gl.glBindTexture(gl.GL_TEXTURE_2D, 0)
 
     return texture
+
+
+def create_bind_vertex_attrib_array_float(data, attribLoc):
+    bufId = gl.glGenBuffers(1)
+    gl.glBindBuffer(gl.GL_ARRAY_BUFFER, bufId)
+    flatData = flatten(data)
+    data_buffer = (c_float * len(flatData))(*flatData)
+    gl.glBufferData(gl.GL_ARRAY_BUFFER, data_buffer, gl.GL_STATIC_DRAW)
+    gl.glVertexAttribPointer(
+        attribLoc,
+        int(len(flatData) / len(data)),
+        gl.GL_FLOAT,
+        gl.GL_FALSE,
+        0,
+        None,
+    )
+    gl.glEnableVertexAttribArray(attribLoc)
+    return bufId
+
+
+def bind_texture(texUnit, textureId, defaultTexture):
+    gl.glActiveTexture(gl.GL_TEXTURE0 + texUnit)
+    gl.glBindTexture(
+        gl.GL_TEXTURE_2D, textureId if textureId != -1 else defaultTexture
+    )

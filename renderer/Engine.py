@@ -1,4 +1,5 @@
 import sys
+import warnings
 from time import sleep
 from typing import Any, Type, Union
 
@@ -10,6 +11,9 @@ from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.View import View
 from utils.log import get_logger
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
+warnings.simplefilter(action="ignore", category=glfw.GLFWError)
 
 Window = Any
 

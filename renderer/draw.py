@@ -20,12 +20,12 @@ def draw_obj(
     model_to_view = view.world_to_view_transform * model_to_world
     model_to_view_normal = inverse(transpose(Mat3(model_to_view)))
 
-    gl.glUseProgram(model.defaultShader)
+    gl.glUseProgram(shader or model.defaultShader)
 
     view_light_space_direction = [0.0, 0.0, -1.0]
     gl.glUniform3fv(
         gl.glGetUniformLocation(
-            model.defaultShader,
+            shader or model.defaultShader,
             "viewSpaceLightDirection",
         ),
         1,
@@ -40,4 +40,7 @@ def draw_obj(
         "modelToViewNormalTransform": model_to_view_normal,
     }
 
-    model.render(shaderProgram=shader, transforms=transforms)
+    model.render(
+        shaderProgram=shader or model.defaultShader,
+        transforms=transforms,
+    )
