@@ -103,4 +103,5 @@ class Car(Entity):
             view=view,
             model_to_world=make_translation(*self.position)
             * make_rotation_y(math.radians(self.drift_yaw)),
+            uniform_overrides={"viewPosition": view.position},
         )

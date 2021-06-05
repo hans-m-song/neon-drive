@@ -39,6 +39,7 @@ class View:
     angle_yaw: float = DEFAULT_ANGLE_YAW
     angle_pitch: float = DEFAULT_ANGLE_PITCH
     rotation: Mat4 = Mat4() * make_rotation_y(math.radians(135))
+    position: list[float]
 
     # ignore the first tick to ignore mouse moving to (0, 0)
     first_tick: bool = True
@@ -118,12 +119,12 @@ class View:
             self.angle_pitch = DEFAULT_ANGLE_PITCH
 
         offset = vec3(*self.view_offset)
-        position = offset + (angle * [0, 0, self.camera_distance])
+        self.position = offset + (angle * [0, 0, self.camera_distance])
         target = self.view_target if not view_target else view_target.position
         offset_target = vec3(*target) + offset
 
         self.world_to_view_transform = make_look_at(
-            position,
+            self.position,
             offset_target,
             self.view_up,
         )

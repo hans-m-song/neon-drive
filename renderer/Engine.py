@@ -124,7 +124,7 @@ class Engine:
 
     def render(self, width: int, height: int) -> None:
         gl.glViewport(0, 0, width, height)
-        gl.glClearColor(0.2, 0.3, 0.1, 1.0)
+        gl.glClearColor(0.6, 0.6, 0.6, 1.0)
         gl.glClear(gl.GL_DEPTH_BUFFER_BIT | gl.GL_COLOR_BUFFER_BIT)
 
         if constants.WIREFRAME:

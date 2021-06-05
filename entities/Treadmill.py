@@ -3,7 +3,7 @@ from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
 from renderer.View import View
-from utils.math import Mat4, make_scale, make_translation
+from utils.math import make_scale, make_translation, vec3
 
 
 class Treadmill(Entity):
@@ -44,4 +44,5 @@ class Treadmill(Entity):
             view=view,
             model_to_world=self.model_to_world
             * make_translation(0, 0, -self.position + self.offset),
+            uniform_overrides={"viewPosition": view.position},
         )

@@ -8,7 +8,7 @@ from renderer.View import View
 from shader.Shader import Shader
 from shader.Texture import Texture
 from shader.utils import create_vertex_obj, prepare_vertex_data_buffer
-from utils.math import Mat4, make_scale
+from utils.math import make_scale
 
 SQUARE_VERTS = [
     [-1, 0, -1],
@@ -49,12 +49,6 @@ def set_texture_parameters():
 
 
 class Ground(Entity):
-    rotation = Mat4()
-    size = 4
-    scale = 1
-    height = 0
-
-    vertices = SQUARE_VERTS
     vertex_obj: Any
     shader: Shader
     texture: Texture
@@ -88,16 +82,12 @@ class Ground(Entity):
 
         self.shader.set_uniforms(
             view=view,
-            model_to_world_tranform=Mat4(),
+            model_to_world_tranform=make_scale(100, 1, 100),
             uniform_overrides={
-                "tex": 0,
-                "texCoordScale": 20.0,
-                "worldToClipTransform": Mat4()
-                * view.view_to_clip_transform
-                * view.world_to_view_transform
-                * make_scale(100, 1, 100),
+                "groundTexture": 0,
+                "texCoordScale": 5.0,
+                "viewPosition": view.position,
             },
-            use_defaults=False,
         )
 
         gl.glBindVertexArray(self.vertex_obj)

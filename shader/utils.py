@@ -37,7 +37,7 @@ Program = Any
 def build_shader(
     vertex_shader_sources,
     fragment_shader_sources,
-    attrib_locs,
+    attrib_locs={},
     frag_data_locs={},
 ) -> Program:
     shader = gl.glCreateProgram()

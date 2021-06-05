@@ -1,10 +1,11 @@
-from typing import Any
+from typing import Any, Dict
 
 import OpenGL.GL as gl
 
 from entities.ObjModel import ObjModel
 from renderer.View import View
-from utils.math import Mat3, Mat4, inverse, transpose
+from shader.utils import set_uniform
+from utils.math import Mat3, Mat4, inverse, transpose, vec3
 
 
 def draw_obj(
@@ -12,6 +13,7 @@ def draw_obj(
     view: View = None,
     model_to_world: Mat4 = None,
     shader: Any = None,
+    uniform_overrides: Dict[str, Any] = {},
 ):
     assert model is not None
     assert view is not None
@@ -20,17 +22,9 @@ def draw_obj(
     model_to_view = view.world_to_view_transform * model_to_world
     model_to_view_normal = inverse(transpose(Mat3(model_to_view)))
 
-    gl.glUseProgram(shader or model.defaultShader)
+    program = shader or model.defaultShader
 
-    view_light_space_direction = [0.0, 0.0, -1.0]
-    gl.glUniform3fv(
-        gl.glGetUniformLocation(
-            shader or model.defaultShader,
-            "viewSpaceLightDirection",
-        ),
-        1,
-        view_light_space_direction,
-    )
+    gl.glUseProgram(program)
 
     transforms = {
         "modelToClipTransform": view.view_to_clip_transform
@@ -40,7 +34,20 @@ def draw_obj(
         "modelToViewNormalTransform": model_to_view_normal,
     }
 
+    uniforms = {
+        "viewSpaceLightDirection": [0.0, 0.0, -1.0],
+        "fogExtinctionCoeff": 0.005,
+        "fogColor": vec3(0.73),
+        "enableSrgb": True,
+        "origin": vec3(0),
+    }
+
+    uniforms.update(uniform_overrides)
+
+    for key, value in uniforms.items():
+        set_uniform(program, key, value)
+
     model.render(
-        shaderProgram=shader or model.defaultShader,
+        shaderProgram=program,
         transforms=transforms,
     )

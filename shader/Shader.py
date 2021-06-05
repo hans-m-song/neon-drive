@@ -32,7 +32,8 @@ class Shader:
         self,
         vertex_source_filename: str = "default_vertex",
         fragment_source_filename: str = "default_fragment",
-        attribute_overrides: Dict[str, Any] = {},
+        vertex_attribute_overrides: Dict[str, Any] = {},
+        fragment_attribute_overrides: Dict[str, Any] = {},
     ):
         self.texture = create_default_texture([1.0, 1.0, 1.0, 1.0])
         self.texture_normal = create_default_texture([0.5, 0.5, 0.5, 1.0])
@@ -40,23 +41,22 @@ class Shader:
         self.vertex_source = load_glsl(vertex_source_filename)
         self.fragment_source = load_glsl(fragment_source_filename)
 
-        attributes = {
-            "positionAttribute": ObjModel.AA_Position,
-            "normalAttribute": ObjModel.AA_Normal,
-            "texCoordAttribute": ObjModel.AA_TexCoord,
-            "tangentAttribute": ObjModel.AA_Tangent,
-            "bitangentAttribute": ObjModel.AA_Bitangent,
-        }
+        vertex_attributes = {}
 
-        attributes.update(attribute_overrides)
+        fragment_attributes = {}
+
+        vertex_attributes.update(vertex_attribute_overrides)
+        fragment_attributes.update(fragment_attribute_overrides)
 
         self.program = build_shader(
             self.vertex_source,
             self.fragment_source,
-            attributes,
+            attrib_locs=vertex_attributes,
+            frag_data_locs=fragment_attributes,
         )
 
         self.use()
+
         default_bindings = {
             "diffuse_texture": ObjModel.TU_Diffuse,
             "opacity_texture": ObjModel.TU_Opacity,
@@ -85,22 +85,22 @@ class Shader:
         assert view is not None
         assert model_to_world_tranform is not None
 
-        model_to_clip_transform = (
+        model_to_clip_transform: Mat4 = (
             view.view_to_clip_transform
             * view.world_to_view_transform
             * model_to_world_tranform
         )
 
-        model_to_view_transform = (
+        model_to_view_transform: Mat4 = (
             view.world_to_view_transform * model_to_world_tranform
         )
 
-        model_to_view_normal_transform = inverse(
+        model_to_view_normal_transform: Mat3 = inverse(
             transpose(Mat3(model_to_view_transform))
         )
 
-        world_to_clip_transform = (
-            view.view_to_clip_transform * view.world_to_view_transform
+        view_space_light_position: Mat4 = transform_point(
+            view.world_to_view_transform, vec3(0)
         )
 
         uniforms = {}
@@ -110,21 +110,19 @@ class Shader:
                 "modelToClipTransform": model_to_clip_transform,
                 "modelToViewTransform": model_to_view_transform,
                 "modelToViewNormalTransform": model_to_view_normal_transform,
-                "viewToClipTransform": view.view_to_clip_transform,
                 "worldToViewTransform": view.world_to_view_transform,
-                "worldToClipTransform": world_to_clip_transform,
+                "viewToClipTransform": view.view_to_clip_transform,
+                "viewPosition": view.position,
             }
 
+            print(view.position)
+
             fragment_uniforms = {
-                "viewSpaceLightPosition": transform_point(
-                    view.world_to_view_transform, vec3(0)
-                ),
+                "viewSpaceLightPosition": view_space_light_position,
                 "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
                 "ambientLightColourAndIntensity": vec3(0.1),
-                "viewToWorldRotationTransform": inverse(
-                    Mat3(view.world_to_view_transform)
-                ),
-                "fogExtinctionCoeff": 0.05,
+                "fogExtinctionCoeff": 0.5,
+                "fogColor": vec3(0.73),
             }
 
             uniforms.update(vertex_uniforms)
