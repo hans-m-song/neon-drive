@@ -1,26 +1,34 @@
 #version 330
 
-layout(location = 0) in vec3 worldPositionAttr;
-layout(location = 1) in vec2 textureCoordAttr;
+layout(location = 0) in vec3 positionAttribute;
+layout(location = 1) in vec3 normalAttribute;
+layout(location = 2) in vec2 texCoordAttribute;
 
 uniform mat4 modelToClipTransform;
 uniform mat4 modelToViewTransform;
 uniform mat3 modelToViewNormalTransform;
-uniform mat4 worldToViewTransform;
-uniform mat4 viewToClipTransform;
+uniform vec3 viewSpaceLightDirection;
+uniform vec3 lightColourAndIntensity;
+uniform vec3 ambientLightColourAndIntensity;
+uniform float fogExtinctionOffset;
+uniform float fogExtinctionCoeff;
+uniform vec3 fogColor;
+uniform bool enableSrgb;
 
 // overrides
 uniform float texCoordScale;
 
 out VertexData {
-    vec2 v2f_textureCoord;
-    vec3 v2f_worldSpacePosition;
+    vec3 v2f_viewSpaceNormal;
     vec3 v2f_viewSpacePosition;
+    vec2 v2f_textureCoordinate;
+    vec3 v2f_worldSpacePosition;
 };
 
 void main() {
-    v2f_worldSpacePosition = worldPositionAttr;
-    v2f_textureCoord = textureCoordAttr * texCoordScale - (texCoordScale - 1.0) / 2.0;
-    v2f_viewSpacePosition = (modelToViewTransform * vec4(worldPositionAttr, 1.0)).xyz;
-    gl_Position = modelToClipTransform * vec4(worldPositionAttr, 1.0);
+    gl_Position = modelToClipTransform * vec4(positionAttribute, 1.0);
+    v2f_viewSpaceNormal = normalize(modelToViewNormalTransform * normalAttribute);
+    v2f_viewSpacePosition = (modelToViewTransform * vec4(positionAttribute, 1.0)).xyz;
+    v2f_textureCoordinate = texCoordAttribute * texCoordScale - (texCoordScale - 1.0) / 2.0;
+    v2f_worldSpacePosition = positionAttribute;
 }

@@ -3,8 +3,6 @@ from typing import Any, Dict
 import OpenGL.GL as gl
 
 from entities.ObjModel import ObjModel
-from renderer.draw import prepare_uniforms
-from renderer.View import View
 from shader.utils import (
     Program,
     ShaderSource,
@@ -15,7 +13,6 @@ from shader.utils import (
     set_uniform,
 )
 from utils.log import get_logger
-from utils.math import Mat3, Mat4, inverse, transform_point, transpose, vec3
 
 logger = get_logger()
 

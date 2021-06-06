@@ -5,7 +5,7 @@ import OpenGL.GL as gl
 
 from entities.Car import Car
 from entities.Entity import Entity
-from renderer.draw import LIGHT_COLOR, LIGHT_L, LIGHT_R, prepare_uniforms
+from renderer.uniform import LIGHT_COLOR, LIGHT_L, LIGHT_R, prepare_uniforms
 from renderer.View import View
 from shader.Shader import Shader
 from shader.utils import create_vertex_obj, prepare_vertex_data_buffer

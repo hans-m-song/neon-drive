@@ -4,7 +4,7 @@ import OpenGL.GL as gl
 
 from entities.Car import Car
 from entities.Entity import Entity
-from renderer.draw import prepare_uniforms
+from renderer.uniform import prepare_uniforms
 from renderer.View import View
 from shader.Shader import Shader
 from shader.Texture import Texture

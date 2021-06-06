@@ -3,7 +3,7 @@ import math
 from entities.Car import Car
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
-from renderer.draw import prepare_uniforms
+from renderer.uniform import prepare_uniforms
 from renderer.View import View
 from utils.math import make_rotation_y, make_scale, make_translation
 

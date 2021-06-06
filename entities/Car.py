@@ -2,7 +2,7 @@ import math
 
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
-from renderer.draw import prepare_uniforms
+from renderer.uniform import prepare_uniforms
 from renderer.View import View
 from utils.math import clamp, make_rotation_y, make_translation
 

@@ -2,7 +2,6 @@ from typing import Any, Dict
 
 import OpenGL.GL as gl
 
-from entities.ObjModel import ObjModel
 from renderer.View import View
 from shader.utils import set_uniform
 from utils.math import (
@@ -51,7 +50,7 @@ def prepare_uniforms(
         "modelToClipTransform": model_to_clip,
         "modelToViewTransform": model_to_view,
         "modelToViewNormalTransform": model_to_view_normal,
-        "viewSpaceLightDirection": [0.0, 0.0, -1.0],
+        "viewSpaceLightDirection": vec3(0.0, 0.0, -1.0),
         "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
         "ambientLightColourAndIntensity": vec3(0.1),
         "fogExtinctionOffset": 35.0,

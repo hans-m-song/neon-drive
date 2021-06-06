@@ -1,18 +1,22 @@
 #version 330
 
 in VertexData {
-    vec2 v2f_textureCoord;
-    vec3 v2f_worldSpacePosition;
+    vec3 v2f_viewSpaceNormal;
     vec3 v2f_viewSpacePosition;
+    vec2 v2f_textureCoordinate;
+    vec3 v2f_worldSpacePosition;
 };
 
-uniform vec3 viewPosition;
-uniform mat4 viewSpaceLightPosition;
+uniform mat4 modelToClipTransform;
+uniform mat4 modelToViewTransform;
+uniform mat3 modelToViewNormalTransform;
+uniform vec3 viewSpaceLightDirection;
 uniform vec3 lightColourAndIntensity;
 uniform vec3 ambientLightColourAndIntensity;
 uniform float fogExtinctionOffset;
 uniform float fogExtinctionCoeff;
 uniform vec3 fogColor;
+uniform bool enableSrgb;
 
 // overrides
 uniform float texCoordScale;
