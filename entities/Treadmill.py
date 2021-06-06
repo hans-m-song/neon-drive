@@ -16,6 +16,8 @@ class Treadmill(Entity):
     range: int
     offset: int
 
+    index: int
+
     car: Car
 
     def __init__(self, car: Car = None, position: int = 0, count: int = 1):
@@ -23,6 +25,7 @@ class Treadmill(Entity):
         assert car is not None
         assert position > -1
 
+        self.index = position
         self.car = car
         self.position = position * self.scaling
         self.range = count * self.scaling
@@ -45,8 +48,10 @@ class Treadmill(Entity):
             program=self.model.defaultShader,
             view=view,
             light_position=self.position,
+            light_rotation=self.car.drift_yaw,
             model_to_world_transform=self.model_to_world
             * make_translation(0, 0, -self.position + self.offset),
+            verbose="treadmill" if self.index == 0 else None,
         )
 
         self.model.render(transforms={})

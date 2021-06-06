@@ -10,8 +10,13 @@ in VertexData {
 uniform mat4 modelToClipTransform;
 uniform mat4 modelToViewTransform;
 uniform mat3 modelToViewNormalTransform;
-uniform vec3 viewSpaceLightDirection;
-uniform vec3 lightColourAndIntensity;
+uniform mat3 viewToWorldRotationTransform;
+uniform float attenuationLinear;
+uniform float attenuationQuadratic;
+uniform vec3 lightPositionL;
+uniform vec3 lightColourAndIntensityL;
+uniform vec3 lightPositionR;
+uniform vec3 lightColourAndIntensityR;
 uniform vec3 ambientLightColourAndIntensity;
 uniform float fogExtinctionOffset;
 uniform float fogExtinctionCoeff;
@@ -34,21 +39,33 @@ vec3 toSrgb(vec3 color) {
     return pow(color, vec3(1.0 / 2.2));
 }
 
+vec3 calculateLight(vec3 lightPosition, vec3 lightColourAndIntensity) {
+    vec3 viewSpaceDirToLight = normalize(lightPosition - v2f_viewSpacePosition);
+    vec3 viewSpaceNormal = normalize(v2f_viewSpaceNormal);
+    float incomingIntensity = max(0.0, dot(viewSpaceNormal, viewSpaceDirToLight));
+    return incomingIntensity * lightColourAndIntensity;
+}
+
 void main() {
     if(texture(opacity_texture, v2f_textureCoordinate).r < 0.5) {
         discard;
     }
 
     vec3 materialDiffuse = texture(diffuse_texture, v2f_textureCoordinate).xyz * material_diffuse_color;
-    vec3 color = materialDiffuse * (0.1 + 0.9 * max(0.0, dot(v2f_viewSpaceNormal, -viewSpaceLightDirection))) + material_emissive_color;
 
-    float xDist = v2f_viewSpacePosition.x;
-    float yDist = v2f_viewSpacePosition.y;
-    float zDist = v2f_viewSpacePosition.z;
-    float dist = sqrt(xDist * xDist + yDist * yDist + zDist * zDist);
-    float fogAmount = max(0.001, 1 - exp((-dist + fogExtinctionOffset) * fogExtinctionCoeff));
+    // light
+    vec3 totalLight = ambientLightColourAndIntensity +
+        calculateLight(lightPositionL, lightColourAndIntensityL) +
+        calculateLight(lightPositionR, lightColourAndIntensityR);
 
-    vec3 finalColor = mix(color, fogColor, fogAmount);
+    // merge colours
+    vec3 outgoingLight = totalLight * materialDiffuse;
+
+    // fog
+    float viewDist = length(v2f_viewSpacePosition);
+    float fogAmount = max(0.001, 1 - exp((-viewDist + fogExtinctionOffset) * fogExtinctionCoeff));
+
+    vec3 finalColor = mix(outgoingLight, fogColor, fogAmount);
 
     if(enableSrgb) {
         finalColor = toSrgb(finalColor);

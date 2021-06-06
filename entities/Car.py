@@ -101,8 +101,10 @@ class Car(Entity):
             program=self.model.defaultShader,
             view=view,
             light_position=self.position,
+            light_rotation=self.drift_yaw,
             model_to_world_transform=make_translation(*self.position)
             * make_rotation_y(math.radians(self.drift_yaw)),
+            verbose="car",
         )
 
         self.model.render(transforms={})

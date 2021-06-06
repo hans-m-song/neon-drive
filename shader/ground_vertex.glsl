@@ -7,7 +7,6 @@ layout(location = 2) in vec2 texCoordAttribute;
 uniform mat4 modelToClipTransform;
 uniform mat4 modelToViewTransform;
 uniform mat3 modelToViewNormalTransform;
-uniform vec3 viewSpaceLightDirection;
 uniform vec3 lightColourAndIntensity;
 uniform vec3 ambientLightColourAndIntensity;
 uniform float fogExtinctionOffset;

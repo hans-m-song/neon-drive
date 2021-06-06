@@ -9,7 +9,7 @@ from renderer.View import View
 from shader.Shader import Shader
 from shader.Texture import Texture
 from shader.utils import create_vertex_obj, prepare_vertex_data_buffer
-from utils.math import make_scale
+from utils.math import make_scale, vec3
 
 SQUARE_VERTS = [
     [-1, 0, -1],
@@ -89,13 +89,16 @@ class Ground(Entity):
             program=self.shader.program,
             view=view,
             model_to_world_transform=make_scale(150, 1, 150),
+            light_position=self.car.position,
+            light_rotation=self.car.drift_yaw,
             uniform_overrides={
                 "groundTexture": 0,
                 "texCoordScale": 10.0,
                 "fogExtinctionOffset": 35.0,
-                "fogExtinctionCoeff": 0.006,
+                "fogExtinctionCoeff": 0.005,
+                "lightColourAndIntensityL": vec3(0.1),
+                "lightColourAndIntensityR": vec3(0.1),
             },
-            light_position=self.car.position,
         )
 
         gl.glBindVertexArray(self.vertex_obj)

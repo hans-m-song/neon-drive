@@ -59,6 +59,7 @@ class Light(Entity):
             * make_rotation_y(math.radians(self.car.drift_yaw))
             * self.position,
             light_position=self.car.position,
+            light_rotation=self.car.drift_yaw,
             uniform_overrides={"sphereColour": LIGHT_COLOR},
         )
 
