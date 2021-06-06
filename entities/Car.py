@@ -1,11 +1,10 @@
 import math
 
 from entities.Entity import Entity
-from lab1.lab_utils import make_rotation_y
 from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
 from renderer.View import View
-from utils.math import clamp, make_translation
+from utils.math import clamp, make_rotation_y, make_translation
 
 
 class Car(Entity):
