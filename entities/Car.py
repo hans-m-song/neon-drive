@@ -100,6 +100,7 @@ class Car(Entity):
         draw_obj(
             model=self.model,
             view=view,
+            light_position=self.position,
             model_to_world=make_translation(*self.position)
             * make_rotation_y(math.radians(self.drift_yaw)),
             uniform_overrides={"viewPosition": view.position},

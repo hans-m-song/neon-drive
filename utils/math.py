@@ -1,4 +1,5 @@
 import math
+from typing import Union
 
 import numpy as np
 import OpenGL.GL as gl
@@ -103,6 +104,14 @@ class Mat3:
 
     def __str__(self):
         return str(self.matData.A)
+
+
+def mat_to_vec(m: Union[Mat4, Mat3]):
+    if isinstance(m, (Mat3, Mat4)):
+        data = m.getData()
+        return [data[0][-1], data[1][-1], data[2][-1]]
+    else:
+        raise ValueError(f"value {m} is not Mat3 or Mat4")
 
 
 # Turns a multidimensional array (up to 3d?) into a 1D array
@@ -224,3 +233,83 @@ def clamp(
 def transform_point(mat4x4, point):
     x, y, z, w = mat4x4 * [point[0], point[1], point[2], 1.0]
     return vec3(x, y, z) / w
+
+
+def subdivide(dest, v0, v1, v2, level):
+    if level:
+        v3 = normalize(v0 + v1)
+        v4 = normalize(v1 + v2)
+        v5 = normalize(v2 + v0)
+
+        subdivide(dest, v0, v3, v5, level - 1)
+        subdivide(dest, v3, v4, v5, level - 1)
+        subdivide(dest, v3, v1, v4, level - 1)
+        subdivide(dest, v5, v4, v2, level - 1)
+    else:
+        dest.append(v0)
+        dest.append(v1)
+        dest.append(v2)
+
+
+def create_sphere(numSubDivisionLevels):
+    sphereVerts = []
+
+    subdivide(
+        sphereVerts,
+        vec3(0, 1, 0),
+        vec3(0, 0, 1),
+        vec3(1, 0, 0),
+        numSubDivisionLevels,
+    )
+    subdivide(
+        sphereVerts,
+        vec3(0, 1, 0),
+        vec3(1, 0, 0),
+        vec3(0, 0, -1),
+        numSubDivisionLevels,
+    )
+    subdivide(
+        sphereVerts,
+        vec3(0, 1, 0),
+        vec3(0, 0, -1),
+        vec3(-1, 0, 0),
+        numSubDivisionLevels,
+    )
+    subdivide(
+        sphereVerts,
+        vec3(0, 1, 0),
+        vec3(-1, 0, 0),
+        vec3(0, 0, 1),
+        numSubDivisionLevels,
+    )
+
+    subdivide(
+        sphereVerts,
+        vec3(0, -1, 0),
+        vec3(1, 0, 0),
+        vec3(0, 0, 1),
+        numSubDivisionLevels,
+    )
+    subdivide(
+        sphereVerts,
+        vec3(0, -1, 0),
+        vec3(0, 0, 1),
+        vec3(-1, 0, 0),
+        numSubDivisionLevels,
+    )
+    subdivide(
+        sphereVerts,
+        vec3(0, -1, 0),
+        vec3(-1, 0, 0),
+        vec3(0, 0, -1),
+        numSubDivisionLevels,
+    )
+    subdivide(
+        sphereVerts,
+        vec3(0, -1, 0),
+        vec3(0, 0, -1),
+        vec3(1, 0, 0),
+        numSubDivisionLevels,
+    )
+
+    return sphereVerts

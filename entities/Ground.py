@@ -1,8 +1,8 @@
-import math
 from typing import Any
 
 import OpenGL.GL as gl
 
+from entities.Car import Car
 from entities.Entity import Entity
 from renderer.View import View
 from shader.Shader import Shader
@@ -52,9 +52,14 @@ class Ground(Entity):
     vertex_obj: Any
     shader: Shader
     texture: Texture
+    car: Car
 
-    def __init__(self):
+    def __init__(self, car: Car = None):
         super().__init__(name="Ground")
+
+        assert car is not None
+
+        self.car = car
 
         self.upload_data()
 

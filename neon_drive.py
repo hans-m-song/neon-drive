@@ -1,6 +1,7 @@
 import constants
 from entities.Car import Car
 from entities.Ground import Ground
+from entities.Light import Light
 from entities.Treadmill import Treadmill
 from renderer.Engine import Engine
 from utils.log import init_logger
@@ -8,7 +9,9 @@ from utils.log import init_logger
 
 def load_assets(engine: Engine):
     car = Car()
-    ground = Ground()
+    lightL = Light(car=car, position="L")
+    lightR = Light(car=car, position="R")
+    ground = Ground(car=car)
     treadmill_parts = [
         Treadmill(
             car=car,
@@ -18,6 +21,8 @@ def load_assets(engine: Engine):
         for i in range(6)
     ]
 
+    engine.add_resource(lightL)
+    engine.add_resource(lightR)
     engine.add_resource(car, view_target=True)
     engine.add_resource(ground)
     for part in treadmill_parts:

@@ -5,7 +5,7 @@ from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.draw import draw_obj
 from renderer.View import View
-from utils.math import make_rotation_y, make_scale, make_translation, vec3
+from utils.math import make_rotation_y, make_scale, make_translation
 
 
 class Treadmill(Entity):
@@ -44,6 +44,7 @@ class Treadmill(Entity):
         draw_obj(
             model=self.model,
             view=view,
+            light_position=self.car.position,
             model_to_world=self.model_to_world
             * make_translation(0.5, -1.8, -self.position + self.offset)
             * make_rotation_y(math.radians(90)),
