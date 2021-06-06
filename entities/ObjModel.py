@@ -1,7 +1,6 @@
 # flake8: noqa
 
 import os
-from ctypes import c_float
 
 import OpenGL.GL as gl
 from PIL import Image

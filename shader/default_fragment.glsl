@@ -1,10 +1,6 @@
 #version 330
 
-in VertexData {
-    vec3 v2f_viewSpaceNormal;
-    vec3 v2f_viewSpacePosition;
-    vec2 v2f_texCoord;
-};
+in vec2 v2f_texCoord;
 
 uniform sampler2D tex;
 

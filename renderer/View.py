@@ -1,5 +1,5 @@
 import math
-from typing import List, Tuple
+from typing import Tuple
 
 from renderer.control import Keyboard, Mouse
 from utils.math import (
