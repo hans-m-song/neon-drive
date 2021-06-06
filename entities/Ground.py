@@ -59,7 +59,7 @@ class Ground(Entity):
         self.upload_data()
 
         self.texture = Texture(
-            "road/tarmac-plain.png",
+            "ground/ground.png",
             set_parameters=set_texture_parameters,
             mode="RGBX",
         )

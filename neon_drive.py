@@ -13,9 +13,9 @@ def load_assets(engine: Engine):
         Treadmill(
             car=car,
             position=i,
-            count=20,
+            count=6,
         )
-        for i in range(20)
+        for i in range(6)
     ]
 
     engine.add_resource(car, view_target=True)
