@@ -50,7 +50,8 @@ class Treadmill(Entity):
             light_position=self.position,
             light_rotation=self.car.drift_yaw,
             model_to_world_transform=self.model_to_world
-            * make_translation(0, 0, -self.position + self.offset),
+            * make_translation(0.5, -1.8, -self.position + self.offset)
+            * make_rotation_y(math.radians(90)),
             verbose="treadmill" if self.index == 0 else None,
         )
 
