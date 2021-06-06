@@ -23,51 +23,44 @@ LIGHT_L = LIGHT_SCALE * LIGHT_TRANSLATE_L
 LIGHT_R = LIGHT_SCALE * LIGHT_TRANSLATE_R
 
 
-def draw_obj(
-    model: ObjModel = None,
+def prepare_uniforms(
+    program: Any = None,
     view: View = None,
     light_position: list[float] = None,
     # TODO light_rotation: float = None
-    model_to_world: Mat4 = None,
-    shader: Any = None,
+    model_to_world_transform: Mat4 = None,
     uniform_overrides: Dict[str, Any] = {},
 ):
-    assert model is not None
+    assert program is not None
     assert view is not None
     assert light_position is not None
     # TODO assert light_rotation is not None
-    assert model_to_world is not None
+    assert model_to_world_transform is not None
 
-    model_to_view = view.world_to_view_transform * model_to_world
+    model_to_view = view.world_to_view_transform * model_to_world_transform
     model_to_view_normal = inverse(transpose(Mat3(model_to_view)))
-
-    program = shader or model.defaultShader
+    model_to_clip: Mat4 = (
+        view.view_to_clip_transform
+        * view.world_to_view_transform
+        * model_to_world_transform
+    )
 
     gl.glUseProgram(program)
 
-    transforms = {
-        "modelToClipTransform": view.view_to_clip_transform
-        * view.world_to_view_transform
-        * model_to_world,
+    uniforms = {
+        "modelToClipTransform": model_to_clip,
         "modelToViewTransform": model_to_view,
         "modelToViewNormalTransform": model_to_view_normal,
-    }
-
-    uniforms = {
         "viewSpaceLightDirection": [0.0, 0.0, -1.0],
+        "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
+        "ambientLightColourAndIntensity": vec3(0.1),
         "fogExtinctionOffset": 35.0,
         "fogExtinctionCoeff": 0.002,
         "fogColor": vec3(0.73),
         "enableSrgb": True,
-        "origin": vec3(0),
     }
 
     uniforms.update(uniform_overrides)
 
     for key, value in uniforms.items():
         set_uniform(program, key, value)
-
-    model.render(
-        shaderProgram=program,
-        transforms=transforms,
-    )

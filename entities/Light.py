@@ -5,7 +5,7 @@ import OpenGL.GL as gl
 
 from entities.Car import Car
 from entities.Entity import Entity
-from renderer.draw import LIGHT_COLOR, LIGHT_L, LIGHT_R
+from renderer.draw import LIGHT_COLOR, LIGHT_L, LIGHT_R, prepare_uniforms
 from renderer.View import View
 from shader.Shader import Shader
 from shader.utils import create_vertex_obj, prepare_vertex_data_buffer
@@ -52,16 +52,14 @@ class Light(Entity):
     def render(self, view: View = None):
         super().render(view=view)
 
-        self.shader.use()
-
-        uniforms = {"sphereColour": LIGHT_COLOR}
-
-        self.shader.set_uniforms(
+        prepare_uniforms(
+            program=self.shader.program,
             view=view,
-            model_to_world_tranform=make_translation(*self.car.position)
+            model_to_world_transform=make_translation(*self.car.position)
             * make_rotation_y(math.radians(self.car.drift_yaw))
             * self.position,
-            uniform_overrides=uniforms,
+            light_position=self.car.position,
+            uniform_overrides={"sphereColour": LIGHT_COLOR},
         )
 
         gl.glBindVertexArray(self.vertex_obj)

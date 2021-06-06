@@ -337,7 +337,7 @@ class ObjModel:
 
         return -1
 
-    def render(self, shaderProgram=None, renderFlags=None, transforms={}):
+    def render(self, shaderProgram=None, renderFlags=None, transforms=None):
         if not renderFlags:
             renderFlags = self.RF_All
 
@@ -349,12 +349,16 @@ class ObjModel:
         gl.glBindVertexArray(self.vertexArrayObject)
         gl.glUseProgram(shaderProgram)
 
-        defaultTfms = {
-            "modelToClipTransform": Mat4(),
-            "modelToViewTransform": Mat4(),
-            "modelToViewNormalTransform": Mat3(),
-        }
-        defaultTfms.update(transforms)
+        defaultTfms = (
+            transforms
+            if transforms is not None
+            else {
+                "modelToClipTransform": Mat4(),
+                "modelToViewTransform": Mat4(),
+                "modelToViewNormalTransform": Mat3(),
+            }
+        )
+
         for tfmName, tfm in defaultTfms.items():
             loc = gl.glGetUniformLocation(shaderProgram, tfmName)
             tfm._set_open_gl_uniform(loc)

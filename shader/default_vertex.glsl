@@ -5,8 +5,6 @@ in vec2 texCoordAttribute;
 
 uniform mat4 modelToClipTransform;
 
-uniform float texCoordScale;
-
 out vec2 v2f_texCoord;
 
 void main() {

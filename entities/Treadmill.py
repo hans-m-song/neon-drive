@@ -3,7 +3,7 @@ import math
 from entities.Car import Car
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
-from renderer.draw import draw_obj
+from renderer.draw import prepare_uniforms
 from renderer.View import View
 from utils.math import make_rotation_y, make_scale, make_translation
 
@@ -41,11 +41,12 @@ class Treadmill(Entity):
     def render(self, view: View = None):
         super().render(view=view)
 
-        draw_obj(
-            model=self.model,
+        prepare_uniforms(
+            program=self.model.defaultShader,
             view=view,
-            light_position=self.car.position,
-            model_to_world=self.model_to_world
-            * make_translation(0.5, -1.8, -self.position + self.offset)
-            * make_rotation_y(math.radians(90)),
+            light_position=self.position,
+            model_to_world_transform=self.model_to_world
+            * make_translation(0, 0, -self.position + self.offset),
         )
+
+        self.model.render(transforms={})

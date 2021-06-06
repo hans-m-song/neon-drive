@@ -4,6 +4,7 @@ import OpenGL.GL as gl
 
 from entities.Car import Car
 from entities.Entity import Entity
+from renderer.draw import prepare_uniforms
 from renderer.View import View
 from shader.Shader import Shader
 from shader.Texture import Texture
@@ -83,17 +84,18 @@ class Ground(Entity):
         super().render(view=view)
 
         self.texture.use()
-        self.shader.use()
 
-        self.shader.set_uniforms(
+        prepare_uniforms(
+            program=self.shader.program,
             view=view,
-            model_to_world_tranform=make_scale(150, 1, 150),
+            model_to_world_transform=make_scale(150, 1, 150),
             uniform_overrides={
                 "groundTexture": 0,
                 "texCoordScale": 10.0,
                 "fogExtinctionOffset": 35.0,
                 "fogExtinctionCoeff": 0.006,
             },
+            light_position=self.car.position,
         )
 
         gl.glBindVertexArray(self.vertex_obj)

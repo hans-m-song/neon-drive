@@ -3,6 +3,7 @@ from typing import Any, Dict
 import OpenGL.GL as gl
 
 from entities.ObjModel import ObjModel
+from renderer.draw import prepare_uniforms
 from renderer.View import View
 from shader.utils import (
     Program,
@@ -74,61 +75,3 @@ class Shader:
 
     def use(self):
         gl.glUseProgram(self.program)
-
-    def set_uniforms(
-        self,
-        view: View = None,
-        model_to_world_tranform: Mat4 = None,
-        uniform_overrides: Dict[str, Any] = {},
-        use_defaults=True,
-    ):
-        assert view is not None
-        assert model_to_world_tranform is not None
-
-        model_to_clip_transform: Mat4 = (
-            view.view_to_clip_transform
-            * view.world_to_view_transform
-            * model_to_world_tranform
-        )
-
-        model_to_view_transform: Mat4 = (
-            view.world_to_view_transform * model_to_world_tranform
-        )
-
-        model_to_view_normal_transform: Mat3 = inverse(
-            transpose(Mat3(model_to_view_transform))
-        )
-
-        view_space_light_position: Mat4 = transform_point(
-            view.world_to_view_transform, vec3(0)
-        )
-
-        uniforms = {}
-
-        if use_defaults:
-            vertex_uniforms = {
-                "modelToClipTransform": model_to_clip_transform,
-                "modelToViewTransform": model_to_view_transform,
-                "modelToViewNormalTransform": model_to_view_normal_transform,
-                "worldToViewTransform": view.world_to_view_transform,
-                "viewToClipTransform": view.view_to_clip_transform,
-                "viewPosition": view.position,
-                "origin": vec3(0),
-            }
-
-            fragment_uniforms = {
-                "viewSpaceLightPosition": view_space_light_position,
-                "lightColourAndIntensity": vec3(0.9, 0.9, 0.9),
-                "ambientLightColourAndIntensity": vec3(0.1),
-                "fogExtinctionOffset": 35.0,
-                "fogExtinctionCoeff": 0.001,
-                "fogColor": vec3(0.73),
-            }
-
-            uniforms.update(vertex_uniforms)
-            uniforms.update(fragment_uniforms)
-
-        uniforms.update(uniform_overrides)
-
-        for item, value in uniforms.items():
-            set_uniform(self.program, item, value)
