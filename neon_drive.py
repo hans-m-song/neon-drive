@@ -11,14 +11,14 @@ from utils.log import init_logger
 def load_assets(engine: Engine):
     cubemap = CubeMap()
     car = Car()
-    lightL = Light(cubemap=cubemap, car=car, position="L")
-    lightR = Light(cubemap=cubemap, car=car, position="R")
-    ground = Ground(cubemap=cubemap, car=car)
+    lightL = Light(car=car, position="L")
+    lightR = Light(car=car, position="R")
+    ground = Ground(car=car)
     treadmill_parts = [
-        Treadmill(car=car, cubemap=cubemap, position=i, count=6)
-        for i in range(6)
+        Treadmill(car=car, position=i, count=6) for i in range(6)
     ]
 
+    engine.add_resource(cubemap)
     engine.add_resource(lightL)
     engine.add_resource(lightR)
     engine.add_resource(car, view_target=True)

@@ -1,7 +1,6 @@
 import math
 
 from entities.Car import Car
-from entities.CubeMap import CubeMap
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.uniform import prepare_uniforms
@@ -20,12 +19,10 @@ class Treadmill(Entity):
     index: int
 
     car: Car
-    cubemap: CubeMap
 
     def __init__(
         self,
         car: Car = None,
-        cubemap: CubeMap = None,
         position: int = 0,
         count: int = 1,
     ):
@@ -35,7 +32,6 @@ class Treadmill(Entity):
 
         self.index = position
         self.car = car
-        self.cubemap = cubemap
 
         self.position = position * self.scaling
         self.range = count * self.scaling
@@ -62,8 +58,6 @@ class Treadmill(Entity):
             model_to_world_transform=self.model_to_world
             * make_translation(0.5, -1.8, -self.position + self.offset)
             * make_rotation_y(math.radians(90)),
-            verbose="treadmill" if self.index == 0 else None,
-            cubemap=self.cubemap,
         )
 
         self.model.render(transforms={})

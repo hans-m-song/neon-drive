@@ -3,7 +3,6 @@ from typing import Any
 import OpenGL.GL as gl
 
 from entities.Car import Car
-from entities.CubeMap import CubeMap
 from entities.Entity import Entity
 from renderer.uniform import prepare_uniforms
 from renderer.View import View
@@ -55,16 +54,14 @@ class Ground(Entity):
     shader: Shader
     texture: Texture
     car: Car
-    cubemap: CubeMap
 
-    def __init__(self, car: Car = None, cubemap: CubeMap = None):
+    def __init__(self, car: Car = None):
 
         super().__init__(name="Ground")
 
         assert car is not None
 
         self.car = car
-        self.cubemap = cubemap
 
         self.upload_data()
 

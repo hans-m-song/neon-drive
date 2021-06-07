@@ -4,11 +4,12 @@ import OpenGL.GL as gl
 from PIL import Image
 
 from entities.Entity import Entity
+from renderer.uniform import prepare_uniforms
 from renderer.View import View
 from shader.Shader import Shader
 from shader.utils import create_vertex_obj, prepare_vertex_data_buffer
 from utils.log import get_logger
-from utils.math import make_scale
+from utils.math import Mat4, make_scale, make_translation, vec3
 
 logger = get_logger()
 
@@ -73,9 +74,9 @@ def load_cube_textures() -> int:
     }
 
     for surface, face_id in surfaces.items():
-        path = f"assets/skybox/{surface}.png"
+        path = f"assets/skybox/{surface}.dds"
         with Image.open(path).transpose(Image.FLIP_TOP_BOTTOM) as image:
-            data = image.tobytes("raw", "RGBX", 0, -1)
+            data = image.tobytes("raw", "RGBA", 0, -1)
             gl.glTexImage2D(
                 face_id,
                 0,
@@ -91,15 +92,15 @@ def load_cube_textures() -> int:
     gl.glGenerateMipmap(gl.GL_TEXTURE_CUBE_MAP)
 
     gl.glTexParameteri(
-        gl.GL_TEXTURE_CUBE_MAP, gl.GL_TEXTURE_MAG_FILTER, gl.GL_LINEAR
+        gl.GL_TEXTURE_CUBE_MAP,
+        gl.GL_TEXTURE_MAG_FILTER,
+        gl.GL_LINEAR,
     )
-
     gl.glTexParameteri(
         gl.GL_TEXTURE_CUBE_MAP,
         gl.GL_TEXTURE_MIN_FILTER,
         gl.GL_LINEAR_MIPMAP_LINEAR,
     )
-
     gl.glTexParameteri(
         gl.GL_TEXTURE_2D,
         gl.GL_TEXTURE_WRAP_R,
@@ -136,6 +137,8 @@ class CubeMap(Entity):
 
     shader: Shader
 
+    position: Mat4 = make_scale(400.0, 400.0, 400.0)
+
     def __init__(self):
         super().__init__("CubeMap")
 
@@ -162,15 +165,15 @@ class CubeMap(Entity):
         super().render(view=view)
 
         self.use()
-        self.shader.use()
-
-        self.shader.set_uniforms(
+        prepare_uniforms(
+            program=self.shader.program,
             view=view,
-            model_to_world_tranform=make_scale(10, 50, 50),
+            model_to_world_transform=self.position,
+            light_position=vec3(0),
+            light_rotation=vec3(0),
             uniform_overrides={
                 "cubemap": 0,
-                "texCoordScale": 5.0,
-                "viewPosition": view.position,
+                "fogColor": vec3(0.63),
             },
         )
 

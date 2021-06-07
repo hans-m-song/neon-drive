@@ -1,6 +1,5 @@
 import math
 
-from entities.CubeMap import CubeMap
 from entities.Entity import Entity
 from renderer.control import Keyboard, Mouse, Time
 from renderer.uniform import prepare_uniforms
@@ -26,15 +25,11 @@ class Car(Entity):
     yaw_max = 35
     yaw_min = -35
 
-    cubemap: CubeMap
-
-    def __init__(self, cubemap: CubeMap = None):
+    def __init__(self):
         super().__init__(
             name="Car",
             filename="assets/camaro/Chevrolet_Camaro_SS_Low.obj",
         )
-
-        self.cubemap = cubemap
 
     def update(
         self,
@@ -109,8 +104,6 @@ class Car(Entity):
             light_rotation=self.drift_yaw,
             model_to_world_transform=make_translation(*self.position)
             * make_rotation_y(math.radians(self.drift_yaw)),
-            verbose="car",
-            cubemap=self.cubemap,
         )
 
         self.model.render(transforms={})

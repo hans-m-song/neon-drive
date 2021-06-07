@@ -30,7 +30,6 @@ def prepare_uniforms(
     light_rotation: float = None,
     model_to_world_transform: Mat4 = None,
     uniform_overrides: Dict[str, Any] = {},
-    verbose: str = None,
 ):
     assert program is not None
     assert view is not None
@@ -80,9 +79,6 @@ def prepare_uniforms(
     }
 
     uniforms.update(uniform_overrides)
-
-    # if verbose is not None:
-    # print(list(map(lambda x: str(x)[:5], offset_light_position)), verbose)
 
     for key, value in uniforms.items():
         set_uniform(program, key, value)
